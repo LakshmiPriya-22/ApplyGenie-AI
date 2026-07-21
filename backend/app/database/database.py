@@ -1,14 +1,13 @@
 from urllib.parse import quote_plus
-
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.config.settings import settings
 from app.database.base import Base
 
-import app.models.user
-
+from app.models.user import User
+from app.models.resume import Resume
+from app.models.resume_analysis import ResumeAnalysis
 password = quote_plus(settings.DB_PASSWORD)
 
 DATABASE_URL = (
