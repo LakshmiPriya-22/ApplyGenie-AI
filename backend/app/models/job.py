@@ -99,3 +99,14 @@ class Job(Base):
     back_populates="job",
     cascade="all, delete-orphan"
 )
+    
+    cover_letters = relationship(
+    "CoverLetter",
+    back_populates="job",
+    cascade="all, delete-orphan"
+)
+    interviews = relationship(
+    "Interview",
+    back_populates="job",
+    cascade="all, delete-orphan"
+)

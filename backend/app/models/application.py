@@ -78,3 +78,8 @@ class Application(Base):
         "Job",
         back_populates="applications"
     )
+    email_logs = relationship(
+    "EmailLog",
+    back_populates="application",
+    cascade="all, delete-orphan"
+)
