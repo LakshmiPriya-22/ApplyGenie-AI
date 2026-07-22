@@ -10,7 +10,9 @@ from app.api.recommendation import router as recommendation_router
 
 from app.api.application import router as application_router
 from app.api.interview import router as interview_router
-
+from app.api.cover_letter import router as cover_letter_router
+from app.api.email import router as email_router
+from app.api.email import router as email_router
 
 
 from app.core.exception_handlers import (
@@ -32,3 +34,10 @@ app.include_router(job_match_router)
 app.include_router(recommendation_router)
 app.include_router(application_router)
 app.include_router(interview_router)
+app.include_router(cover_letter_router)
+app.include_router(email_router)
+app.include_router(
+    email_router,
+    prefix="/api/email",
+    tags=["Email"]
+)
