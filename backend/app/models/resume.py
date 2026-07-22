@@ -44,3 +44,14 @@ class Resume(Base):
     back_populates="resume",
     cascade="all, delete-orphan"
 )
+    
+    interviews = relationship(
+    "Interview",
+    back_populates="resume",
+    cascade="all, delete-orphan"
+)
+    cover_letters = relationship(
+    "CoverLetter",
+    back_populates="resume",
+    cascade="all, delete-orphan"
+)
