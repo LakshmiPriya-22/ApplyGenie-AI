@@ -2,11 +2,8 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.logger import logger
+
 from app.repositories.job_repository import JobRepository
-from app.schemas.job_schema import (
-    JobCreate,
-    JobUpdate
-)
 
 
 class JobService:
@@ -14,34 +11,55 @@ class JobService:
     @staticmethod
     def create_job(
         db: Session,
-        job: JobCreate,
+        job,
         current_user
     ):
 
         logger.info(
-            f"User {current_user.id} is creating a new job."
+            f"Creating job by user {current_user.id}"
         )
 
-        created_job = JobRepository.create_job(
+        return JobRepository.create_job(
             db=db,
             job=job,
             user_id=current_user.id
         )
 
-        logger.info(
-            f"Job {created_job.id} created successfully."
-        )
-
-        return created_job
-
     @staticmethod
     def get_all_jobs(
-        db: Session
+        db: Session,
+        page: int = 1,
+        size: int = 10,
+        company: str | None = None,
+        location: str | None = None,
+        employment_type: str | None = None,
+        experience_level: str | None = None,
+        skills: str | None = None,
+        sort: str | None = None
     ):
 
-        logger.info("Fetching all jobs.")
+        return JobRepository.get_all_jobs(
+            db=db,
+            page=page,
+            size=size,
+            company=company,
+            location=location,
+            employment_type=employment_type,
+            experience_level=experience_level,
+            skills=skills,
+            sort=sort
+        )
 
-        return JobRepository.get_all_jobs(db)
+    @staticmethod
+    def get_my_jobs(
+        db: Session,
+        current_user
+    ):
+
+        return JobRepository.get_jobs_by_user(
+            db=db,
+            user_id=current_user.id
+        )
 
     @staticmethod
     def get_job(
@@ -55,10 +73,6 @@ class JobService:
         )
 
         if not job:
-            logger.error(
-                f"Job {job_id} not found."
-            )
-
             raise HTTPException(
                 status_code=404,
                 detail="Job not found."
@@ -67,25 +81,10 @@ class JobService:
         return job
 
     @staticmethod
-    def get_my_jobs(
-        db: Session,
-        current_user
-    ):
-
-        logger.info(
-            f"Fetching jobs of user {current_user.id}"
-        )
-
-        return JobRepository.get_jobs_by_user(
-            db=db,
-            user_id=current_user.id
-        )
-
-    @staticmethod
     def update_job(
         db: Session,
         job_id: int,
-        job_update: JobUpdate,
+        job_update,
         current_user
     ):
 
@@ -106,17 +105,15 @@ class JobService:
                 detail="Access denied."
             )
 
-        updated_job = JobRepository.update_job(
+        logger.info(
+            f"Updating job {job.id}"
+        )
+
+        return JobRepository.update_job(
             db=db,
             job=job,
             job_update=job_update
         )
-
-        logger.info(
-            f"Job {job.id} updated successfully."
-        )
-
-        return updated_job
 
     @staticmethod
     def delete_job(
@@ -148,7 +145,7 @@ class JobService:
         )
 
         logger.info(
-            f"Job {job.id} deleted successfully."
+            f"Deleted job {job.id}"
         )
 
         return {

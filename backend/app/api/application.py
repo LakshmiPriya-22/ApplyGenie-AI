@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.dependencies.auth import get_current_user
@@ -37,6 +39,36 @@ def apply_job(
         resume_id=request.resume_id,
         job_id=request.job_id,
         current_user=current_user
+    )
+
+
+# ---------------------------------------
+# Search Applications
+# ---------------------------------------
+@router.get(
+    "/search",
+    response_model=list[ApplicationResponse]
+)
+def search_applications(
+    company: str | None = Query(None),
+    title: str | None = Query(None),
+    status: str | None = Query(None),
+    location: str | None = Query(None),
+    from_date: datetime | None = Query(None),
+    to_date: datetime | None = Query(None),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    return ApplicationService.search_applications(
+        db=db,
+        current_user=current_user,
+        company=company,
+        title=title,
+        status=status,
+        location=location,
+        from_date=from_date,
+        to_date=to_date
     )
 
 

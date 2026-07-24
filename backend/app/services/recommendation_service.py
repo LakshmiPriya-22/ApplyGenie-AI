@@ -49,7 +49,7 @@ class RecommendationService:
             )
 
         # -----------------------------
-        # Get Resume Analysis
+        # Ensure Resume Analysis Exists
         # -----------------------------
         analysis = ResumeAnalysisRepository.get_by_resume_id(
             db=db,
@@ -63,7 +63,7 @@ class RecommendationService:
             )
 
         # -----------------------------
-        # Get All Jobs
+        # Get Jobs
         # -----------------------------
         jobs = JobRepository.get_all_jobs(db)
 
@@ -83,11 +83,11 @@ class RecommendationService:
             if not match:
 
                 logger.info(
-                    f"Generating match for Job {job.id}"
+                    f"Generating AI match for Job {job.id}"
                 )
 
                 ai_result = AIMatchingService.match_resume_with_job(
-                    resume_analysis=analysis.analysis,
+                    resume=resume,
                     job=job
                 )
 
@@ -118,7 +118,7 @@ class RecommendationService:
             )
 
         # -----------------------------
-        # Sort by Match Score
+        # Sort Recommendations
         # -----------------------------
         recommendations.sort(
             key=lambda x: x["match_score"],
@@ -159,11 +159,11 @@ class RecommendationService:
 
         JobMatchRepository.delete_resume_matches(
             db=db,
-            resume_id=resume_id
+            resume_id=resume.id
         )
 
         return RecommendationService.get_recommendations(
             db=db,
-            resume_id=resume_id,
+            resume_id=resume.id,
             current_user=current_user
         )

@@ -7,3 +7,4 @@ from .application import Application
 from .interview import Interview
 from .cover_letter import CoverLetter
 from .email_log import EmailLog
+from .interview_schedule import InterviewSchedule

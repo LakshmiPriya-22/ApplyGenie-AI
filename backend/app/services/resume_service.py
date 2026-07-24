@@ -14,6 +14,7 @@ from app.core.logger import logger
 from app.repositories.resume_repository import ResumeRepository
 from app.repositories.resume_analysis_repository import ResumeAnalysisRepository
 from app.services.resume_analysis_service import ResumeAnalysisService
+from app.rag.indexer import ResumeIndexer
 from app.utils.pdf_parser import extract_text_from_pdf
 
 UPLOAD_FOLDER = settings.UPLOAD_FOLDER
@@ -63,6 +64,36 @@ class ResumeService:
             extracted_text=extracted_text,
             user_id=current_user.id
         )
+
+        try:
+            # Index Resume into ChromaDB
+            ResumeIndexer.index_resume(
+                filepath=filepath,
+                resume_id=resume.id,
+                user_id=current_user.id,
+                filename=resume.filename
+            )
+
+        except Exception as e:
+
+            logger.error(
+                f"Failed to index resume: {str(e)}"
+            )
+
+            # Remove uploaded file
+            if os.path.exists(filepath):
+                os.remove(filepath)
+
+            # Remove database record
+            ResumeRepository.delete(
+                db=db,
+                resume=resume
+            )
+
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to index resume: {str(e)}"
+            )
 
         ResumeAnalysisService.generate_analysis(
             db=db,
@@ -128,7 +159,7 @@ class ResumeService:
             current_user=current_user
         )
 
-        # Delete AI analysis first
+        # Delete AI analysis
         analysis = ResumeAnalysisRepository.get_by_resume_id(
             db=db,
             resume_id=resume.id
@@ -140,11 +171,22 @@ class ResumeService:
                 analysis=analysis
             )
 
+        # Delete resume embeddings from ChromaDB
+        try:
+            ResumeIndexer.delete_resume(
+                resume_id=resume.id
+            )
+
+        except Exception as e:
+            logger.error(
+                f"Failed to delete embeddings: {str(e)}"
+            )
+
         # Delete PDF file
         if os.path.exists(resume.filepath):
             os.remove(resume.filepath)
 
-        # Delete resume record
+        # Delete database record
         ResumeRepository.delete(
             db=db,
             resume=resume

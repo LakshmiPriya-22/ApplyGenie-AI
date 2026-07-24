@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.repositories.resume_analysis_repository import (
     ResumeAnalysisRepository
 )
-from app.services.llm_service import LLMService
+from app.rag.rag_service import RAGService
 
 
 class ResumeAnalysisService:
@@ -13,6 +13,10 @@ class ResumeAnalysisService:
         db: Session,
         resume
     ):
+        """
+        Generate AI-powered resume analysis using RAG.
+        """
+
         # Check if analysis already exists
         existing = ResumeAnalysisRepository.get_by_resume_id(
             db=db,
@@ -22,10 +26,43 @@ class ResumeAnalysisService:
         if existing:
             return existing
 
-        # Generate new analysis
-        analysis = LLMService.parse_resume(
-            resume.extracted_text
+        # Generate analysis using RAG
+        analysis = RAGService.resume_analysis(
+            user_id=resume.user_id,
+            resume_id=resume.id
         )
+
+        # Save analysis
+        return ResumeAnalysisRepository.create(
+            db=db,
+            resume_id=resume.id,
+            analysis=analysis
+        )
+
+    @staticmethod
+    def regenerate_analysis(
+        db: Session,
+        resume
+    ):
+        """
+        Regenerate AI analysis for an existing resume.
+        """
+
+        analysis = RAGService.resume_analysis(
+            user_id=resume.user_id,
+            resume_id=resume.id
+        )
+
+        existing = ResumeAnalysisRepository.get_by_resume_id(
+            db=db,
+            resume_id=resume.id
+        )
+
+        if existing:
+            existing.analysis = analysis
+            db.commit()
+            db.refresh(existing)
+            return existing
 
         return ResumeAnalysisRepository.create(
             db=db,
