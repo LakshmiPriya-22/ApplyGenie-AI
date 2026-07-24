@@ -9,6 +9,8 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str
     GROQ_API_KEY: str
+    LLM_MODEL: str = "llama-3.3-70b-versatile"
+
     UPLOAD_FOLDER: str = "uploads/resumes"
     MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10 MB
     DB_USER: str

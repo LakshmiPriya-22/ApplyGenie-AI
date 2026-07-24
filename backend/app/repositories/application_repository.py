@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.models.application import Application
+from app.models.job import Job
 
 
 class ApplicationRepository:
@@ -133,4 +134,57 @@ class ApplicationRepository:
                 Application.job_id == job_id
             )
             .first()
+        )
+
+    @staticmethod
+    def search_applications(
+        db: Session,
+        user_id: int,
+        company: str | None = None,
+        title: str | None = None,
+        status: str | None = None,
+        location: str | None = None,
+        from_date=None,
+        to_date=None
+    ):
+
+        query = (
+            db.query(Application)
+            .join(Job, Application.job_id == Job.id)
+            .filter(Application.user_id == user_id)
+        )
+
+        if company:
+            query = query.filter(
+                Job.company.ilike(f"%{company}%")
+            )
+
+        if title:
+            query = query.filter(
+                Job.title.ilike(f"%{title}%")
+            )
+
+        if status:
+            query = query.filter(
+                Application.status == status
+            )
+
+        if location:
+            query = query.filter(
+                Job.location.ilike(f"%{location}%")
+            )
+
+        if from_date:
+            query = query.filter(
+                Application.applied_at >= from_date
+            )
+
+        if to_date:
+            query = query.filter(
+                Application.applied_at <= to_date
+            )
+
+        return (
+            query.order_by(Application.applied_at.desc())
+            .all()
         )

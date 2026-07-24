@@ -34,11 +34,60 @@ class JobRepository:
 
     @staticmethod
     def get_all_jobs(
-        db: Session
+        db: Session,
+        page: int = 1,
+        size: int = 10,
+        company: str | None = None,
+        location: str | None = None,
+        employment_type: str | None = None,
+        experience_level: str | None = None,
+        skills: str | None = None,
+        sort: str | None = None
     ):
+
+        query = db.query(Job)
+
+        if company:
+            query = query.filter(
+                Job.company.ilike(f"%{company}%")
+            )
+
+        if location:
+            query = query.filter(
+                Job.location.ilike(f"%{location}%")
+            )
+
+        if employment_type:
+            query = query.filter(
+                Job.employment_type.ilike(f"%{employment_type}%")
+            )
+
+        if experience_level:
+            query = query.filter(
+                Job.experience_level.ilike(f"%{experience_level}%")
+            )
+
+        if skills:
+            query = query.filter(
+                Job.skills.ilike(f"%{skills}%")
+            )
+
+        if sort == "salary":
+            query = query.order_by(Job.salary.desc())
+
+        elif sort == "title":
+            query = query.order_by(Job.title.asc())
+
+        elif sort == "company":
+            query = query.order_by(Job.company.asc())
+
+        else:
+            query = query.order_by(Job.created_at.desc())
+
         return (
-            db.query(Job)
-            .order_by(Job.created_at.desc())
+            query
+            .offset((page - 1) * size)
+            .limit(size)
             .all()
         )
 
