@@ -14,3 +14,12 @@ node_modules/
 
 # Logs
 *.log
+
+node_modules/
+dist/
+
+
+generated_pdfs/
+uploads/resumes/
+database/
+backend.zip
