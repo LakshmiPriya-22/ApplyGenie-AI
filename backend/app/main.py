@@ -21,6 +21,7 @@ from app.api.resume_pdf import router as resume_pdf_router
 
 
 
+
 app = FastAPI(
     title="ApplyGenie AI",
     version="1.0.0"
