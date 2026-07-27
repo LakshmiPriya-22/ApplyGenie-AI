@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app.models.application import Application
+from app.models.job import Job
 
 
 class ApplicationRepository:
@@ -71,11 +73,11 @@ class ApplicationRepository:
         db: Session,
         application: Application,
         status: str,
-        recruiter_notes: str | None = None
+        notes: str | None = None
     ):
 
         application.status = status
-        application.recruiter_notes = recruiter_notes
+        application.notes = notes
 
         db.commit()
         db.refresh(application)
@@ -134,3 +136,94 @@ class ApplicationRepository:
             )
             .first()
         )
+
+    @staticmethod
+    def search_applications(
+        db: Session,
+        user_id: int,
+        company: str | None = None,
+        title: str | None = None,
+        status: str | None = None,
+        location: str | None = None,
+        from_date=None,
+        to_date=None
+    ):
+
+        query = (
+            db.query(Application)
+            .join(Job, Application.job_id == Job.id)
+            .filter(Application.user_id == user_id)
+        )
+
+        if company:
+            query = query.filter(
+                Job.company.ilike(f"%{company}%")
+            )
+
+        if title:
+            query = query.filter(
+                Job.title.ilike(f"%{title}%")
+            )
+
+        if status:
+            query = query.filter(
+                Application.status == status
+            )
+
+        if location:
+            query = query.filter(
+                Job.location.ilike(f"%{location}%")
+            )
+
+        if from_date:
+            query = query.filter(
+                Application.applied_at >= from_date
+            )
+
+        if to_date:
+            query = query.filter(
+                Application.applied_at <= to_date
+            )
+
+        return (
+            query.order_by(Application.applied_at.desc())
+            .all()
+        )
+
+    @staticmethod
+    def get_dashboard_statistics(
+        db: Session,
+        user_id: int
+    ):
+
+        stats = (
+            db.query(
+                Application.status,
+                func.count(Application.id)
+            )
+            .filter(Application.user_id == user_id)
+            .group_by(Application.status)
+            .all()
+        )
+
+        dashboard = {
+            "total": 0,
+            "applied": 0,
+            "screening": 0,
+            "interview": 0,
+            "assessment": 0,
+            "offer": 0,
+            "rejected": 0,
+            "withdrawn": 0
+        }
+
+        for status, count in stats:
+
+            dashboard["total"] += count
+
+            key = status.lower()
+
+            if key in dashboard:
+                dashboard[key] = count
+
+        return dashboard

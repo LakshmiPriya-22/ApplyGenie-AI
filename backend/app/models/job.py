@@ -77,10 +77,11 @@ class Job(Base):
         onupdate=func.now()
     )
 
+    # Nullable because jobs may come from external providers
     posted_by = Column(
         Integer,
         ForeignKey("users.id"),
-        nullable=False
+        nullable=True
     )
 
     user = relationship(
@@ -89,13 +90,25 @@ class Job(Base):
     )
 
     job_matches = relationship(
-    "JobMatch",
-    back_populates="job",
-    cascade="all, delete-orphan"
-)
-    
+        "JobMatch",
+        back_populates="job",
+        cascade="all, delete-orphan"
+    )
+
     applications = relationship(
-    "Application",
-    back_populates="job",
-    cascade="all, delete-orphan"
-)
+        "Application",
+        back_populates="job",
+        cascade="all, delete-orphan"
+    )
+
+    cover_letters = relationship(
+        "CoverLetter",
+        back_populates="job",
+        cascade="all, delete-orphan"
+    )
+
+    interviews = relationship(
+        "Interview",
+        back_populates="job",
+        cascade="all, delete-orphan"
+    )

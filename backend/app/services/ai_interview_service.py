@@ -1,43 +1,30 @@
 import json
 
-from groq import Groq
-
-from app.config.settings import settings
 from app.core.logger import logger
-
-client = Groq(
-    api_key=settings.GROQ_API_KEY
-)
+from app.rag.rag_service import RAGService
+from app.rag.llm import llm
 
 
 class AIInterviewService:
 
     @staticmethod
     def generate_interview(
-        resume_analysis: dict,
+        resume,
         job,
         match,
         interview_type: str,
         difficulty: str
     ):
+        """
+        Generate interview questions using RAG.
+        """
 
         logger.info("Generating AI interview questions...")
 
-        prompt = f"""
-You are a Senior Technical Interviewer.
+        job_context = f"""
+Title: {job.title}
 
-Generate interview questions based on:
-
-Resume Analysis:
-{json.dumps(resume_analysis, indent=2)}
-
-Job Details:
-
-Title:
-{job.title}
-
-Company:
-{job.company}
+Company: {job.company}
 
 Description:
 {job.description}
@@ -56,63 +43,73 @@ Interview Type:
 
 Difficulty:
 {difficulty}
+"""
 
-Return ONLY valid JSON.
+        context = RAGService._get_context(
+            user_id=resume.user_id,
+            resume_id=resume.id,
+            query=job_context
+        )
 
-Example:
+        prompt = f"""
+You are a Senior Technical Interviewer.
 
-[
-    {{
-        "question":"Explain Dependency Injection in FastAPI.",
-        "category":"Technical"
-    }},
-    {{
-        "question":"Tell me about yourself.",
-        "category":"HR"
-    }}
-]
+Resume Context:
+{context}
+
+Job Details:
+{job_context}
+
+Generate exactly 10 interview questions.
 
 Rules:
 
-Generate exactly 10 questions.
+- Return ONLY valid JSON.
+- Do NOT return markdown.
+- Do NOT explain anything.
 
-If interview_type is:
+JSON Format:
 
-Technical
-→ Technical questions only.
+[
+    {{
+        "question": "",
+        "category": ""
+    }}
+]
 
-HR
-→ HR questions only.
+Interview Type:
 
-Behavioral
-→ Behavioral questions only.
+Technical -> Technical questions only
 
-Coding
-→ Coding questions only.
+HR -> HR questions only
 
-Mixed
-→ Mix all categories.
+Behavioral -> Behavioral questions only
 
-Do NOT return markdown.
-Do NOT explain anything.
+Coding -> Coding questions only
+
+Mixed -> Mix all categories.
 """
 
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
+        response = llm.generate(
+            prompt=prompt,
             temperature=0.3
         )
 
-        result = response.choices[0].message.content
+        logger.info(
+            "Interview generated successfully."
+        )
 
-        logger.info("Interview generated successfully.")
+        try:
+            return json.loads(response)
 
-        return json.loads(result)
+        except Exception:
+
+            return [
+                {
+                    "question": response,
+                    "category": "General"
+                }
+            ]
 
     @staticmethod
     def evaluate_answers(
@@ -120,7 +117,9 @@ Do NOT explain anything.
         answers
     ):
 
-        logger.info("Evaluating interview answers...")
+        logger.info(
+            "Evaluating interview answers..."
+        )
 
         prompt = f"""
 You are an experienced Software Engineering Interviewer.
@@ -160,19 +159,24 @@ Do NOT return markdown.
 Do NOT explain anything.
 """
 
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
+        response = llm.generate(
+            prompt=prompt,
             temperature=0.2
         )
 
-        result = response.choices[0].message.content
+        logger.info(
+            "Interview evaluation completed."
+        )
 
-        logger.info("Interview evaluation completed.")
+        try:
+            return json.loads(response)
 
-        return json.loads(result)
+        except Exception:
+
+            return {
+                "score": 0,
+                "strengths": [],
+                "weaknesses": [],
+                "suggestions": [],
+                "overall_feedback": response
+            }

@@ -4,9 +4,7 @@ from sqlalchemy.orm import Session
 from app.dependencies.auth import get_current_user
 from app.dependencies.database import get_db
 
-from app.schemas.job_match_schema import (
-    JobMatchResponse
-)
+from app.schemas.job_match_schema import JobMatchResponse
 from app.schemas.job_schema import DeleteJobResponse
 
 from app.services.job_match_service import JobMatchService
@@ -31,11 +29,11 @@ def match_resume_with_job(
     current_user=Depends(get_current_user)
 ):
 
-    return JobMatchService.match_resume_with_job(
+    return JobMatchService.match_resume(
         db=db,
+        user_id=current_user.id,
         resume_id=resume_id,
-        job_id=job_id,
-        current_user=current_user
+        job_id=job_id
     )
 
 
@@ -54,8 +52,7 @@ def get_match(
 
     return JobMatchService.get_match(
         db=db,
-        match_id=match_id,
-        current_user=current_user
+        match_id=match_id
     )
 
 
@@ -74,8 +71,7 @@ def get_resume_matches(
 
     return JobMatchService.get_resume_matches(
         db=db,
-        resume_id=resume_id,
-        current_user=current_user
+        resume_id=resume_id
     )
 
 
@@ -94,6 +90,5 @@ def delete_match(
 
     return JobMatchService.delete_match(
         db=db,
-        match_id=match_id,
-        current_user=current_user
+        match_id=match_id
     )

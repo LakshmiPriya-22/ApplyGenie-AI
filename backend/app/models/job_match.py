@@ -83,3 +83,9 @@ class JobMatch(Base):
     back_populates="job_match",
     cascade="all, delete-orphan"
 )
+    
+    cover_letters = relationship(
+    "CoverLetter",
+    back_populates="job_match",
+    cascade="all, delete-orphan"
+)

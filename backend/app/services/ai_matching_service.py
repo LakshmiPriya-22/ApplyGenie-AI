@@ -1,53 +1,34 @@
 import json
 
-from groq import Groq
-
-from app.config.settings import settings
 from app.core.logger import logger
-
-client = Groq(
-    api_key=settings.GROQ_API_KEY
-)
+from app.rag.rag_service import RAGService
 
 
 class AIMatchingService:
 
     @staticmethod
     def match_resume_with_job(
-        resume_analysis: dict,
+        resume,
         job
     ):
+        """
+        Match a user's resume against a job using RAG.
+        """
 
         logger.info(
             "Generating AI Resume-Job Match..."
         )
 
-        prompt = f"""
-You are an expert ATS (Applicant Tracking System) and Technical Recruiter.
+        job_description = f"""
+Title: {job.title}
 
-Compare the following Resume Analysis with the Job Description.
+Company: {job.company}
 
-Return ONLY valid JSON.
+Location: {job.location}
 
-Resume Analysis:
-{json.dumps(resume_analysis, indent=2)}
+Employment Type: {job.employment_type}
 
-Job Details:
-
-Title:
-{job.title}
-
-Company:
-{job.company}
-
-Location:
-{job.location}
-
-Employment Type:
-{job.employment_type}
-
-Experience:
-{job.experience_level}
+Experience: {job.experience_level}
 
 Description:
 {job.description}
@@ -57,42 +38,27 @@ Requirements:
 
 Skills:
 {job.skills}
-
-Return ONLY this JSON format.
-
-{{
-    "match_score": 0,
-    "strengths": [],
-    "missing_skills": [],
-    "recommendations": [],
-    "summary": ""
-}}
-
-Rules:
-- match_score must be between 0 and 100.
-- strengths should contain only matching skills.
-- missing_skills should contain skills absent in resume.
-- recommendations should help improve the resume.
-- summary should be less than 60 words.
-Do NOT return markdown.
-Do NOT explain anything.
 """
 
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=0.2
+        response = RAGService.ats_analysis(
+            user_id=resume.user_id,
+            resume_id=resume.id,
+            job_description=job_description
         )
-
-        result = response.choices[0].message.content
 
         logger.info(
-            "AI Matching completed."
+            "AI Resume-Job Match completed."
         )
 
-        return json.loads(result)
+        try:
+            return json.loads(response)
+
+        except Exception:
+
+            return {
+                "match_score": 0,
+                "strengths": [],
+                "missing_skills": [],
+                "recommendations": [],
+                "summary": response
+            }

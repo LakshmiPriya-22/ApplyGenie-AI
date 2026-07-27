@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.dependencies.database import get_db
 from app.dependencies.auth import get_current_user
+from app.agents.job_discovery_agent import JobDiscoveryAgent
 
 from app.schemas.job_schema import (
     JobCreate,
@@ -47,9 +48,33 @@ def create_job(
     response_model=list[JobResponse]
 )
 def get_all_jobs(
+    page: int = Query(1, ge=1),
+    size: int = Query(10, ge=1, le=100),
+
+    company: str | None = Query(None),
+    location: str | None = Query(None),
+    employment_type: str | None = Query(None),
+    experience_level: str | None = Query(None),
+    skills: str | None = Query(None),
+
+    sort: str | None = Query(
+        None,
+        description="salary | title | company"
+    ),
+
     db: Session = Depends(get_db)
 ):
-    return JobService.get_all_jobs(db=db)
+    return JobService.get_all_jobs(
+        db=db,
+        page=page,
+        size=size,
+        company=company,
+        location=location,
+        employment_type=employment_type,
+        experience_level=experience_level,
+        skills=skills,
+        sort=sort
+    )
 
 
 # -------------------------------
@@ -124,3 +149,26 @@ def delete_job(
         job_id=job_id,
         current_user=current_user
     )
+
+# -------------------------------
+# Discover Jobs Automatically
+# -------------------------------
+
+
+@router.post("/discover")
+def discover_jobs(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    """
+    Discover jobs from external providers.
+    """
+
+    agent = JobDiscoveryAgent()
+
+    result = agent.discover_jobs(db)
+
+    return {
+        "message": "Job discovery completed successfully.",
+        "statistics": result
+    }

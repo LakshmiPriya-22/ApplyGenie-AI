@@ -11,7 +11,7 @@ class ApplicationCreate(BaseModel):
 
 class ApplicationStatusUpdate(BaseModel):
     status: str
-    recruiter_notes: Optional[str] = None
+    notes: Optional[str] = None
 
 
 class ApplicationResponse(BaseModel):
@@ -21,7 +21,7 @@ class ApplicationResponse(BaseModel):
     job_id: int
 
     status: str
-    recruiter_notes: Optional[str] = None
+    notes: Optional[str] = None
 
     applied_at: datetime
     updated_at: datetime
@@ -40,12 +40,23 @@ class ApplicationDetailsResponse(BaseModel):
     resume_id: int
 
     status: str
-    recruiter_notes: Optional[str] = None
+    notes: Optional[str] = None
 
     applied_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ApplicationDashboardResponse(BaseModel):
+    total: int
+    applied: int
+    screening: int
+    interview: int
+    assessment: int
+    offer: int
+    rejected: int
+    withdrawn: int
 
 
 class DeleteApplicationResponse(BaseModel):

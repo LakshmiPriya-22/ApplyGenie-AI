@@ -8,6 +8,7 @@ from app.database.base import Base
 from app.models.user import User
 from app.models.resume import Resume
 from app.models.resume_analysis import ResumeAnalysis
+from app.models.interview_schedule import InterviewSchedule
 password = quote_plus(settings.DB_PASSWORD)
 
 DATABASE_URL = (
@@ -25,5 +26,3 @@ SessionLocal = sessionmaker(
     autoflush=False,
     bind=engine,
 )
-
-Base.metadata.create_all(bind=engine)

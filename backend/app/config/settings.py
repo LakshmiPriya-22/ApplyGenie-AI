@@ -9,6 +9,7 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str
     GROQ_API_KEY: str
+    LLM_MODEL: str = "llama-3.3-70b-versatile"
     UPLOAD_FOLDER: str = "uploads/resumes"
     MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10 MB
     DB_USER: str
@@ -16,6 +17,14 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_STARTTLS: bool
+    MAIL_SSL_TLS: bool
+    MAIL_FROM_NAME: str
 
     model_config = {
         "env_file": ".env",

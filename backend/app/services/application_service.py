@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -6,7 +7,7 @@ from app.core.logger import logger
 from app.repositories.application_repository import ApplicationRepository
 from app.repositories.resume_repository import ResumeRepository
 from app.repositories.job_repository import JobRepository
-
+from app.models.application import APPLICATION_STATUSES
 
 class ApplicationService:
 
@@ -22,9 +23,6 @@ class ApplicationService:
             f"User {current_user.id} applying for Job {job_id}"
         )
 
-        # -----------------------------
-        # Verify Resume
-        # -----------------------------
         resume = ResumeRepository.get_by_id(
             db=db,
             resume_id=resume_id
@@ -36,22 +34,16 @@ class ApplicationService:
                 detail="Resume not found."
             )
 
-        # -----------------------------
-        # Verify Resume Ownership
-        # -----------------------------
         if resume.user_id != current_user.id:
             raise HTTPException(
                 status_code=403,
                 detail="Access denied."
             )
 
-        # -----------------------------
-        # Verify Job
-        # -----------------------------
-        job = JobRepository.get_job_by_id(
+        job = JobRepository.get_by_id(
             db=db,
             job_id=job_id
-        )
+            )
 
         if not job:
             raise HTTPException(
@@ -59,9 +51,6 @@ class ApplicationService:
                 detail="Job not found."
             )
 
-        # -----------------------------
-        # Prevent Duplicate Application
-        # -----------------------------
         existing = ApplicationRepository.application_exists(
             db=db,
             user_id=current_user.id,
@@ -161,13 +150,12 @@ class ApplicationService:
         return {
             "message": "Application withdrawn successfully."
         }
-
     @staticmethod
     def update_status(
         db: Session,
         application_id: int,
         status: str,
-        recruiter_notes: str,
+        notes: str | None,
         current_user
     ):
 
@@ -182,14 +170,23 @@ class ApplicationService:
                 detail="Application not found."
             )
 
-        # Optional:
-        # Restrict this endpoint to recruiters/admins.
+        if application.user_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied."
+            )
+
+        if status not in APPLICATION_STATUSES:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid status. Allowed values: {', '.join(APPLICATION_STATUSES)}"
+            )
 
         application = ApplicationRepository.update_status(
             db=db,
             application=application,
             status=status,
-            recruiter_notes=recruiter_notes
+            notes=notes
         )
 
         logger.info(
@@ -197,3 +194,42 @@ class ApplicationService:
         )
 
         return application
+
+    @staticmethod
+    def search_applications(
+        db: Session,
+        current_user,
+        company: str | None = None,
+        title: str | None = None,
+        status: str | None = None,
+        location: str | None = None,
+        from_date: datetime | None = None,
+        to_date: datetime | None = None
+    ):
+
+        logger.info(
+            f"Searching applications for user {current_user.id}"
+        )
+
+        return ApplicationRepository.search_applications(
+            db=db,
+            user_id=current_user.id,
+            company=company,
+            title=title,
+            status=status,
+            location=location,
+            from_date=from_date,
+            to_date=to_date
+        )
+    @staticmethod
+    def get_dashboard(
+        db: Session,
+        current_user
+    ):
+
+        return ApplicationRepository.get_dashboard_statistics(
+            db=db,
+            user_id=current_user.id
+        )
+    
+    
