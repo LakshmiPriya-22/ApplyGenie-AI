@@ -9,8 +9,9 @@ from app.dependencies.database import get_db
 from app.schemas.application_schema import (
     ApplicationCreate,
     ApplicationResponse,
+    ApplicationStatusUpdate,
     DeleteApplicationResponse,
-    ApplicationStatusUpdate
+    ApplicationDashboardResponse
 )
 
 from app.services.application_service import ApplicationService
@@ -21,33 +22,113 @@ router = APIRouter(
 )
 
 
-# ---------------------------------------
-# Apply for a Job
-# ---------------------------------------
+# ----------------------------------
+# Apply for Job
+# ----------------------------------
 @router.post(
     "",
     response_model=ApplicationResponse
 )
 def apply_job(
-    request: ApplicationCreate,
+    application: ApplicationCreate,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
 
     return ApplicationService.apply_job(
         db=db,
-        resume_id=request.resume_id,
-        job_id=request.job_id,
+        resume_id=application.resume_id,
+        job_id=application.job_id,
         current_user=current_user
     )
 
 
-# ---------------------------------------
-# Search Applications
-# ---------------------------------------
+# ----------------------------------
+# Get My Applications
+# ----------------------------------
 @router.get(
-    "/search",
+    "",
     response_model=list[ApplicationResponse]
+)
+def get_my_applications(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    return ApplicationService.get_my_applications(
+        db=db,
+        current_user=current_user
+    )
+
+
+# ----------------------------------
+# Get Application By ID
+# ----------------------------------
+@router.get(
+    "/{application_id}",
+    response_model=ApplicationResponse
+)
+def get_application(
+    application_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    return ApplicationService.get_application(
+        db=db,
+        application_id=application_id,
+        current_user=current_user
+    )
+
+
+# ----------------------------------
+# Update Status
+# ----------------------------------
+@router.put(
+    "/{application_id}",
+    response_model=ApplicationResponse
+)
+def update_status(
+    application_id: int,
+    update: ApplicationStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    return ApplicationService.update_status(
+        db=db,
+        application_id=application_id,
+        status=update.status,
+        notes=update.notes,
+        current_user=current_user
+    )
+
+
+# ----------------------------------
+# Withdraw Application
+# ----------------------------------
+@router.delete(
+    "/{application_id}",
+    response_model=DeleteApplicationResponse
+)
+def withdraw_application(
+    application_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    return ApplicationService.withdraw_application(
+        db=db,
+        application_id=application_id,
+        current_user=current_user
+    )
+
+
+# ----------------------------------
+# Search Applications
+# ----------------------------------
+@router.get(
+    "/search/"
 )
 def search_applications(
     company: str | None = Query(None),
@@ -72,82 +153,19 @@ def search_applications(
     )
 
 
-# ---------------------------------------
-# Get My Applications
-# ---------------------------------------
+# ----------------------------------
+# Dashboard
+# ----------------------------------
 @router.get(
-    "",
-    response_model=list[ApplicationResponse]
+    "/dashboard",
+    response_model=ApplicationDashboardResponse
 )
-def get_my_applications(
+def dashboard(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
 
-    return ApplicationService.get_my_applications(
+    return ApplicationService.get_dashboard(
         db=db,
-        current_user=current_user
-    )
-
-
-# ---------------------------------------
-# Get Application By ID
-# ---------------------------------------
-@router.get(
-    "/{application_id}",
-    response_model=ApplicationResponse
-)
-def get_application(
-    application_id: int,
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-
-    return ApplicationService.get_application(
-        db=db,
-        application_id=application_id,
-        current_user=current_user
-    )
-
-
-# ---------------------------------------
-# Update Application Status
-# ---------------------------------------
-@router.put(
-    "/{application_id}/status",
-    response_model=ApplicationResponse
-)
-def update_application_status(
-    application_id: int,
-    request: ApplicationStatusUpdate,
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-
-    return ApplicationService.update_status(
-        db=db,
-        application_id=application_id,
-        status=request.status,
-        recruiter_notes=request.recruiter_notes,
-        current_user=current_user
-    )
-
-
-# ---------------------------------------
-# Withdraw Application
-# ---------------------------------------
-@router.delete(
-    "/{application_id}",
-    response_model=DeleteApplicationResponse
-)
-def withdraw_application(
-    application_id: int,
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-
-    return ApplicationService.withdraw_application(
-        db=db,
-        application_id=application_id,
         current_user=current_user
     )

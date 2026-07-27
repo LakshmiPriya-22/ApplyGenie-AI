@@ -14,7 +14,7 @@ class JobMatchRepository:
         strengths: list,
         missing_skills: list,
         recommendations: list,
-        summary: str,
+        summary,
         ai_response: dict
     ):
 
@@ -99,19 +99,6 @@ class JobMatchRepository:
         db.commit()
 
     @staticmethod
-    def get_all_matches_for_resume(
-        db: Session,
-        resume_id: int
-    ):
-
-        return (
-            db.query(JobMatch)
-            .filter(JobMatch.resume_id == resume_id)
-            .order_by(JobMatch.match_score.desc())
-            .all()
-        )
-
-    @staticmethod
     def delete_resume_matches(
         db: Session,
         resume_id: int
@@ -124,18 +111,3 @@ class JobMatchRepository:
         )
 
         db.commit()
-
-    @staticmethod
-    def get_top_matches_for_resume(
-        db: Session,
-        resume_id: int,
-        limit: int = 10
-    ):
-
-        return (
-            db.query(JobMatch)
-            .filter(JobMatch.resume_id == resume_id)
-            .order_by(JobMatch.match_score.desc())
-            .limit(limit)
-            .all()
-        )

@@ -5,11 +5,11 @@ from sqlalchemy import (
     ForeignKey,
     Float,
     JSON,
+    Text,
     DateTime
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-
 
 from app.database.base import Base
 
@@ -50,12 +50,14 @@ class Interview(Base):
 
     interview_type = Column(
         String,
-        nullable=False
+        nullable=False,
+        default="Technical + HR"
     )
 
     difficulty = Column(
         String,
-        nullable=False
+        nullable=False,
+        default="Medium"
     )
 
     questions = Column(
@@ -70,6 +72,21 @@ class Interview(Base):
 
     feedback = Column(
         JSON,
+        nullable=True
+    )
+
+    tips = Column(
+        JSON,
+        nullable=True
+    )
+
+    roadmap = Column(
+        JSON,
+        nullable=True
+    )
+
+    summary = Column(
+        Text,
         nullable=True
     )
 
@@ -89,7 +106,9 @@ class Interview(Base):
         onupdate=func.now()
     )
 
+    # -------------------------
     # Relationships
+    # -------------------------
 
     user = relationship(
         "User",

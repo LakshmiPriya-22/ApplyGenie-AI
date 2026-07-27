@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.dependencies.database import get_db
 from app.dependencies.auth import get_current_user
+from app.agents.job_discovery_agent import JobDiscoveryAgent
 
 from app.schemas.job_schema import (
     JobCreate,
@@ -148,3 +149,26 @@ def delete_job(
         job_id=job_id,
         current_user=current_user
     )
+
+# -------------------------------
+# Discover Jobs Automatically
+# -------------------------------
+
+
+@router.post("/discover")
+def discover_jobs(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    """
+    Discover jobs from external providers.
+    """
+
+    agent = JobDiscoveryAgent()
+
+    result = agent.discover_jobs(db)
+
+    return {
+        "message": "Job discovery completed successfully.",
+        "statistics": result
+    }

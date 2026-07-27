@@ -28,10 +28,22 @@ class ResumeRepository:
         return resume
 
     @staticmethod
+    def get_all(
+        db: Session
+    ):
+
+        return (
+            db.query(Resume)
+            .order_by(Resume.uploaded_at.desc())
+            .all()
+        )
+
+    @staticmethod
     def get_all_by_user(
         db: Session,
         user_id: int
     ):
+
         return (
             db.query(Resume)
             .filter(Resume.user_id == user_id)
@@ -44,6 +56,7 @@ class ResumeRepository:
         db: Session,
         resume_id: int
     ):
+
         return (
             db.query(Resume)
             .filter(Resume.id == resume_id)
@@ -51,9 +64,28 @@ class ResumeRepository:
         )
 
     @staticmethod
+    def update(
+        db: Session,
+        resume: Resume
+    ):
+
+        db.commit()
+        db.refresh(resume)
+
+        return resume
+
+    @staticmethod
     def delete(
         db: Session,
         resume: Resume
     ):
+
         db.delete(resume)
         db.commit()
+
+    @staticmethod
+    def count(
+        db: Session
+    ):
+
+        return db.query(Resume).count()

@@ -14,7 +14,10 @@ class InterviewRepository:
         job_match_id: int,
         interview_type: str,
         difficulty: str,
-        questions: list
+        questions: list,
+        tips: list | None = None,
+        roadmap: list | None = None,
+        summary: str | None = None
     ):
 
         interview = Interview(
@@ -24,7 +27,10 @@ class InterviewRepository:
             job_match_id=job_match_id,
             interview_type=interview_type,
             difficulty=difficulty,
-            questions=questions
+            questions=questions,
+            tips=tips,
+            roadmap=roadmap,
+            summary=summary
         )
 
         db.add(interview)
@@ -56,6 +62,44 @@ class InterviewRepository:
             .filter(Interview.user_id == user_id)
             .order_by(Interview.created_at.desc())
             .all()
+        )
+
+    @staticmethod
+    def get_resume_interviews(
+        db: Session,
+        resume_id: int
+    ):
+
+        return (
+            db.query(Interview)
+            .filter(Interview.resume_id == resume_id)
+            .order_by(Interview.created_at.desc())
+            .all()
+        )
+
+    @staticmethod
+    def get_job_interviews(
+        db: Session,
+        job_id: int
+    ):
+
+        return (
+            db.query(Interview)
+            .filter(Interview.job_id == job_id)
+            .order_by(Interview.created_at.desc())
+            .all()
+        )
+
+    @staticmethod
+    def get_by_job_match(
+        db: Session,
+        job_match_id: int
+    ):
+
+        return (
+            db.query(Interview)
+            .filter(Interview.job_match_id == job_match_id)
+            .first()
         )
 
     @staticmethod
@@ -116,32 +160,6 @@ class InterviewRepository:
 
         db.delete(interview)
         db.commit()
-
-    @staticmethod
-    def get_job_interviews(
-        db: Session,
-        job_id: int
-    ):
-
-        return (
-            db.query(Interview)
-            .filter(Interview.job_id == job_id)
-            .order_by(Interview.created_at.desc())
-            .all()
-        )
-
-    @staticmethod
-    def get_resume_interviews(
-        db: Session,
-        resume_id: int
-    ):
-
-        return (
-            db.query(Interview)
-            .filter(Interview.resume_id == resume_id)
-            .order_by(Interview.created_at.desc())
-            .all()
-        )
 
     @staticmethod
     def get_completed_interviews(

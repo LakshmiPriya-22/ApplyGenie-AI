@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app.models.application import Application
 from app.models.job import Job
@@ -72,11 +73,11 @@ class ApplicationRepository:
         db: Session,
         application: Application,
         status: str,
-        recruiter_notes: str | None = None
+        notes: str | None = None
     ):
 
         application.status = status
-        application.recruiter_notes = recruiter_notes
+        application.notes = notes
 
         db.commit()
         db.refresh(application)
@@ -188,3 +189,41 @@ class ApplicationRepository:
             query.order_by(Application.applied_at.desc())
             .all()
         )
+
+    @staticmethod
+    def get_dashboard_statistics(
+        db: Session,
+        user_id: int
+    ):
+
+        stats = (
+            db.query(
+                Application.status,
+                func.count(Application.id)
+            )
+            .filter(Application.user_id == user_id)
+            .group_by(Application.status)
+            .all()
+        )
+
+        dashboard = {
+            "total": 0,
+            "applied": 0,
+            "screening": 0,
+            "interview": 0,
+            "assessment": 0,
+            "offer": 0,
+            "rejected": 0,
+            "withdrawn": 0
+        }
+
+        for status, count in stats:
+
+            dashboard["total"] += count
+
+            key = status.lower()
+
+            if key in dashboard:
+                dashboard[key] = count
+
+        return dashboard

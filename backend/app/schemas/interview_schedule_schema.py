@@ -4,48 +4,63 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 
-class InterviewScheduleCreate(BaseModel):
-    application_id: int
-    company: str
-    job_title: str
-    interviewer_name: Optional[str] = None
-    mode: str
-    meeting_link: Optional[str] = None
-    location: Optional[str] = None
-    scheduled_at: datetime
-    notes: Optional[str] = None
+# --------------------------------------
+# Generate Interview Request
+# --------------------------------------
+class InterviewGenerateRequest(BaseModel):
+    resume_id: int
+    job_id: int
+    job_match_id: int
 
 
-class InterviewScheduleUpdate(BaseModel):
-    scheduled_at: datetime
+# --------------------------------------
+# Individual Question
+# --------------------------------------
+class InterviewQuestion(BaseModel):
+    question: str
+    difficulty: str
 
 
-class InterviewScheduleCancel(BaseModel):
-    status: str = "Cancelled"
-
-
-class InterviewScheduleResponse(BaseModel):
+# --------------------------------------
+# Interview Response
+# --------------------------------------
+class InterviewResponse(BaseModel):
     id: int
+
     user_id: int
-    application_id: int
-    company: str
-    job_title: str
-    interviewer_name: Optional[str]
-    mode: str
-    meeting_link: Optional[str]
-    location: Optional[str]
-    scheduled_at: datetime
-    status: str
-    notes: Optional[str]
+    resume_id: int
+    job_id: int
+    job_match_id: int
+
+    interview_type: str
+    difficulty: str
+
+    questions: list
+    answers: Optional[list] = None
+    feedback: Optional[list] = None
+
+    tips: Optional[list] = None
+    roadmap: Optional[list] = None
+
+    summary: Optional[str] = None
+
+    score: Optional[float] = None
+
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class InterviewStatistics(BaseModel):
-    total: int
-    scheduled: int
-    completed: int
-    cancelled: int
-    upcoming: int
+# --------------------------------------
+# Interview List
+# --------------------------------------
+class InterviewListResponse(BaseModel):
+    interviews: list[InterviewResponse]
+
+
+# --------------------------------------
+# Delete Response
+# --------------------------------------
+class DeleteInterviewResponse(BaseModel):
+    message: str
