@@ -52,9 +52,9 @@ class InterviewService:
         # -----------------------------
         # Verify Job
         # -----------------------------
-        job = JobRepository.get_job_by_id(
-            db=db,
-            job_id=job_id
+        job = JobRepository.get_by_id(
+        db=db,
+        job_id=job_id
         )
 
         if not job:
@@ -139,21 +139,18 @@ class InterviewService:
         # Save Interview
         # -----------------------------
         interview = InterviewRepository.create_interview(
-            db=db,
-            user_id=current_user.id,
-            resume_id=resume_id,
-            job_id=job_id,
-            job_match_id=match.id,
-            interview_type=interview_type,
-            difficulty=difficulty,
-            questions=questions
-        )
-
-        logger.info(
-            f"Interview {interview.id} created successfully."
-        )
-
-        return interview
+        db=db,
+        user_id=current_user.id,
+        resume_id=resume_id,
+        job_id=job_id,
+        job_match_id=match.id,
+        interview_type=interview_type,
+        difficulty=difficulty,
+        questions=questions["questions"],
+        tips=questions.get("tips"),
+        roadmap=questions.get("roadmap"),
+        summary=questions.get("summary")
+    )
 
     @staticmethod
     def submit_answers(
@@ -192,13 +189,11 @@ class InterviewService:
         )
 
         InterviewRepository.update_feedback(
-            db=db,
-            interview=interview,
-            feedback=result,
-            score=result["score"]
-        )
-
-        return interview
+    db=db,
+    interview=interview,
+    feedback=result["feedback"],
+    score=result["score"]
+)
 
     @staticmethod
     def get_interview(

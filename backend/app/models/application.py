@@ -9,7 +9,19 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-from app.database.database import Base
+from app.database.base import Base
+
+
+# Allowed Application Statuses
+APPLICATION_STATUSES = (
+    "Applied",
+    "Screening",
+    "Interview",
+    "Assessment",
+    "Offer",
+    "Rejected",
+    "Withdrawn"
+)
 
 
 class Application(Base):
@@ -46,7 +58,7 @@ class Application(Base):
         default="Applied"
     )
 
-    recruiter_notes = Column(
+    notes = Column(
         Text,
         nullable=True
     )
@@ -62,7 +74,9 @@ class Application(Base):
         onupdate=func.now()
     )
 
+    # -------------------------
     # Relationships
+    # -------------------------
 
     user = relationship(
         "User",
@@ -78,8 +92,9 @@ class Application(Base):
         "Job",
         back_populates="applications"
     )
+
     email_logs = relationship(
-    "EmailLog",
-    back_populates="application",
-    cascade="all, delete-orphan"
-)
+        "EmailLog",
+        back_populates="application",
+        cascade="all, delete-orphan"
+    )

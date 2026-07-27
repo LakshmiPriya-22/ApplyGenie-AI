@@ -18,6 +18,7 @@ from app.api import interview_schedule
 
 from app.core.exception_handlers import register_exception_handlers
 from app.api.resume_pdf import router as resume_pdf_router
+from app.api.job_discovery import router as job_discovery_router
 
 
 
@@ -45,3 +46,6 @@ app.include_router(interview_schedule.router)
 app.include_router(resume_chat_router)
 app.include_router(resume_optimizer_router)
 app.include_router(resume_pdf_router)
+app.include_router(
+    job_discovery_router
+)

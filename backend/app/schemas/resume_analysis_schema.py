@@ -7,7 +7,7 @@ from pydantic import BaseModel
 class ResumeAnalysisResponse(BaseModel):
     resume_id: int
     status: str
-    analysis: dict[str, Any]
+    analysis: str
     created_at: datetime
     updated_at: datetime
 

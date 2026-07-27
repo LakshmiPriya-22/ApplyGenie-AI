@@ -90,10 +90,10 @@ class RAGService:
         user_id: int,
         resume_id: int,
         job_description: str
-    ) -> str:
+    ) -> dict:
         """
-        Compare the uploaded resume with a job description and
-        generate an ATS compatibility report.
+        Compare the uploaded resume with a job description
+        and return structured JSON.
         """
 
         context, documents = RAGService._get_context(
@@ -107,11 +107,37 @@ class RAGService:
             job_description=job_description
         )
 
-        answer = llm.generate(prompt)
+        response = llm.generate(prompt)
 
-        sources = CitationService.format_sources(documents)
+        if not response:
+            raise ValueError("LLM returned an empty response.")
 
-        return f"{answer}\n\nSources:\n{sources}"
+        response = response.strip()
+
+        # Remove Markdown code fences if present
+        response = re.sub(
+            r"^```(?:json)?",
+            "",
+            response,
+            flags=re.IGNORECASE
+        )
+
+        response = re.sub(
+            r"```$",
+            "",
+            response
+        ).strip()
+
+        try:
+            data = json.loads(response)
+
+        except json.JSONDecodeError as e:
+
+            raise ValueError(
+                f"Invalid JSON returned by LLM:\n\n{response}"
+            ) from e
+
+        return data
 
     @staticmethod
     def job_recommendation(

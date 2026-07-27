@@ -8,8 +8,6 @@ from app.repositories.resume_analysis_repository import ResumeAnalysisRepository
 from app.repositories.job_repository import JobRepository
 from app.repositories.job_match_repository import JobMatchRepository
 
-from app.services.ai_matching_service import AIMatchingService
-
 
 class RecommendationService:
 
@@ -63,14 +61,14 @@ class RecommendationService:
             )
 
         # -----------------------------
-        # Get Jobs
+        # Get All Jobs
         # -----------------------------
-        jobs = JobRepository.get_all_jobs(db)
+        jobs = JobRepository.get_all(db)
 
         recommendations = []
 
         # -----------------------------
-        # Generate/Re-use Matches
+        # Read Existing Matches
         # -----------------------------
         for job in jobs:
 
@@ -81,27 +79,7 @@ class RecommendationService:
             )
 
             if not match:
-
-                logger.info(
-                    f"Generating AI match for Job {job.id}"
-                )
-
-                ai_result = AIMatchingService.match_resume_with_job(
-                    resume=resume,
-                    job=job
-                )
-
-                match = JobMatchRepository.create_match(
-                    db=db,
-                    resume_id=resume.id,
-                    job_id=job.id,
-                    match_score=ai_result["match_score"],
-                    strengths=ai_result["strengths"],
-                    missing_skills=ai_result["missing_skills"],
-                    recommendations=ai_result["recommendations"],
-                    summary=ai_result["summary"],
-                    ai_response=ai_result
-                )
+                continue
 
             recommendations.append(
                 {
@@ -162,8 +140,6 @@ class RecommendationService:
             resume_id=resume.id
         )
 
-        return RecommendationService.get_recommendations(
-            db=db,
-            resume_id=resume.id,
-            current_user=current_user
-        )
+        return {
+            "message": "Recommendation cache cleared. Please regenerate job matches before requesting recommendations."
+        }

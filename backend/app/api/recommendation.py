@@ -5,6 +5,8 @@ from app.dependencies.auth import get_current_user
 from app.dependencies.database import get_db
 
 from app.schemas.recommendation_schema import RecommendationListResponse
+from app.schemas.job_schema import DeleteJobResponse
+
 from app.services.recommendation_service import RecommendationService
 
 router = APIRouter(
@@ -38,7 +40,7 @@ def get_recommendations(
 # -----------------------------------------
 @router.post(
     "/resume/{resume_id}/refresh",
-    response_model=RecommendationListResponse
+    response_model=DeleteJobResponse
 )
 def refresh_recommendations(
     resume_id: int,
