@@ -53,8 +53,8 @@ class InterviewService:
         # Verify Job
         # -----------------------------
         job = JobRepository.get_by_id(
-        db=db,
-        job_id=job_id
+            db=db,
+            job_id=job_id
         )
 
         if not job:
@@ -94,7 +94,7 @@ class InterviewService:
             logger.info("Generating new job match...")
 
             ai_result = AIMatchingService.match_resume_with_job(
-                resume_analysis=analysis.analysis,
+                resume=resume,
                 job=job
             )
 
@@ -128,7 +128,7 @@ class InterviewService:
         # Generate Questions
         # -----------------------------
         questions = AIInterviewService.generate_interview(
-            resume_analysis=analysis.analysis,
+            resume=resume,
             job=job,
             match=match,
             interview_type=interview_type,
@@ -139,19 +139,25 @@ class InterviewService:
         # Save Interview
         # -----------------------------
         interview = InterviewRepository.create_interview(
-        db=db,
-        user_id=current_user.id,
-        resume_id=resume_id,
-        job_id=job_id,
-        job_match_id=match.id,
-        interview_type=interview_type,
-        difficulty=difficulty,
-        questions=questions["questions"],
-        tips=questions.get("tips"),
-        roadmap=questions.get("roadmap"),
-        summary=questions.get("summary")
-    )
+            db=db,
+            user_id=current_user.id,
+            resume_id=resume_id,
+            job_id=job_id,
+            job_match_id=match.id,
+            interview_type=interview_type,
+            difficulty=difficulty,
+            questions=questions["questions"],
+            tips=questions.get("tips"),
+            roadmap=questions.get("roadmap"),
+            summary=questions.get("summary")
+        )
 
+        logger.info(
+            f"Interview {interview.id} created successfully."
+        )
+
+        return interview
+    
     @staticmethod
     def submit_answers(
         db: Session,
@@ -189,11 +195,13 @@ class InterviewService:
         )
 
         InterviewRepository.update_feedback(
-    db=db,
-    interview=interview,
-    feedback=result["feedback"],
-    score=result["score"]
-)
+            db=db,
+            interview=interview,
+            feedback=result["feedback"],
+            score=result["score"]
+        )
+
+        return interview
 
     @staticmethod
     def get_interview(

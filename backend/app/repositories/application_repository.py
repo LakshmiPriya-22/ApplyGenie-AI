@@ -73,11 +73,11 @@ class ApplicationRepository:
         db: Session,
         application: Application,
         status: str,
-        notes: str | None = None
+        recruiter_notes: str | None = None
     ):
 
         application.status = status
-        application.notes = notes
+        application.recruiter_notes = recruiter_notes
 
         db.commit()
         db.refresh(application)

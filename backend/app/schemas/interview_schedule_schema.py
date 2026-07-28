@@ -4,47 +4,61 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 
-# --------------------------------------
-# Generate Interview Request
-# --------------------------------------
-class InterviewGenerateRequest(BaseModel):
-    resume_id: int
-    job_id: int
-    job_match_id: int
+# ---------------------------------------
+# Schedule Interview
+# ---------------------------------------
+
+class InterviewScheduleCreate(BaseModel):
+    application_id: int
+    company: str
+    job_title: str
+    interviewer_name: Optional[str] = None
+    mode: str
+    meeting_link: Optional[str] = None
+    location: Optional[str] = None
+    scheduled_at: datetime
+    recruiter_notes: Optional[str] = None
 
 
-# --------------------------------------
-# Individual Question
-# --------------------------------------
-class InterviewQuestion(BaseModel):
-    question: str
-    difficulty: str
+# ---------------------------------------
+# Update Schedule
+# ---------------------------------------
+
+class InterviewScheduleUpdate(BaseModel):
+    scheduled_at: datetime
 
 
-# --------------------------------------
-# Interview Response
-# --------------------------------------
-class InterviewResponse(BaseModel):
+# ---------------------------------------
+# Cancel Interview
+# ---------------------------------------
+
+class InterviewScheduleCancel(BaseModel):
+    status: str = "Cancelled"
+
+
+# ---------------------------------------
+# Response
+# ---------------------------------------
+
+class InterviewScheduleResponse(BaseModel):
     id: int
-
     user_id: int
-    resume_id: int
-    job_id: int
-    job_match_id: int
+    application_id: int
 
-    interview_type: str
-    difficulty: str
+    company: str
+    job_title: str
 
-    questions: list
-    answers: Optional[list] = None
-    feedback: Optional[list] = None
+    interviewer_name: Optional[str] = None
 
-    tips: Optional[list] = None
-    roadmap: Optional[list] = None
+    mode: str
+    meeting_link: Optional[str] = None
+    location: Optional[str] = None
 
-    summary: Optional[str] = None
+    scheduled_at: datetime
 
-    score: Optional[float] = None
+    status: str
+
+    notes: Optional[str] = None
 
     created_at: datetime
     updated_at: datetime
@@ -52,15 +66,13 @@ class InterviewResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-# --------------------------------------
-# Interview List
-# --------------------------------------
-class InterviewListResponse(BaseModel):
-    interviews: list[InterviewResponse]
+# ---------------------------------------
+# Statistics
+# ---------------------------------------
 
-
-# --------------------------------------
-# Delete Response
-# --------------------------------------
-class DeleteInterviewResponse(BaseModel):
-    message: str
+class InterviewStatistics(BaseModel):
+    total: int
+    scheduled: int
+    completed: int
+    cancelled: int
+    upcoming: int

@@ -5,9 +5,9 @@ from app.dependencies.auth import get_current_user
 from app.dependencies.database import get_db
 
 from app.schemas.interview_schema import (
-    InterviewCreate,
-    InterviewSubmit,
+    InterviewGenerateRequest,
     InterviewResponse,
+    InterviewListResponse,
     DeleteInterviewResponse
 )
 
@@ -27,7 +27,7 @@ router = APIRouter(
     response_model=InterviewResponse
 )
 def generate_interview(
-    request: InterviewCreate,
+    request: InterviewGenerateRequest,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
@@ -36,31 +36,9 @@ def generate_interview(
         db=db,
         resume_id=request.resume_id,
         job_id=request.job_id,
-        interview_type=request.interview_type,
-        difficulty=request.difficulty,
-        current_user=current_user
-    )
-
-
-# ---------------------------------------
-# Submit Answers
-# ---------------------------------------
-@router.post(
-    "/{interview_id}/submit",
-    response_model=InterviewResponse
-)
-def submit_answers(
-    interview_id: int,
-    request: InterviewSubmit,
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-
-    return InterviewService.submit_answers(
-        db=db,
-        interview_id=interview_id,
-        answers=[answer.model_dump() for answer in request.answers],
-        current_user=current_user
+        current_user=current_user,
+        interview_type="Technical + HR",
+        difficulty="Medium"
     )
 
 
@@ -69,17 +47,21 @@ def submit_answers(
 # ---------------------------------------
 @router.get(
     "",
-    response_model=list[InterviewResponse]
+    response_model=InterviewListResponse
 )
 def get_my_interviews(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
 
-    return InterviewService.get_my_interviews(
+    interviews = InterviewService.get_my_interviews(
         db=db,
         current_user=current_user
     )
+
+    return {
+        "interviews": interviews
+    }
 
 
 # ---------------------------------------
