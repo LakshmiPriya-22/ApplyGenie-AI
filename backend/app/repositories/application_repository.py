@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 
 from app.models.application import Application
@@ -8,18 +8,9 @@ from app.models.job import Job
 class ApplicationRepository:
 
     @staticmethod
-    def create_application(
-        db: Session,
-        user_id: int,
-        resume_id: int,
-        job_id: int
-    ):
+    def create_application(db: Session, user_id: int, resume_id: int, job_id: int):
 
-        application = Application(
-            user_id=user_id,
-            resume_id=resume_id,
-            job_id=job_id
-        )
+        application = Application(user_id=user_id, resume_id=resume_id, job_id=job_id)
 
         db.add(application)
         db.commit()
@@ -28,52 +19,45 @@ class ApplicationRepository:
         return application
 
     @staticmethod
-    def get_application_by_id(
-        db: Session,
-        application_id: int
-    ):
+    def get_application_by_id(db: Session, application_id: int):
 
         return (
             db.query(Application)
+            .options(joinedload(Application.job))
             .filter(Application.id == application_id)
             .first()
         )
 
     @staticmethod
-    def get_user_applications(
-        db: Session,
-        user_id: int
-    ):
+    def get_user_applications(db: Session, user_id: int):
 
         return (
             db.query(Application)
+            .options(joinedload(Application.job))
             .filter(Application.user_id == user_id)
             .order_by(Application.applied_at.desc())
             .all()
         )
 
     @staticmethod
-    def get_application_by_job_and_resume(
-        db: Session,
-        resume_id: int,
-        job_id: int
-    ):
+    def get_application_by_job_and_resume(db: Session, resume_id: int, job_id: int):
 
         return (
             db.query(Application)
-            .filter(
-                Application.resume_id == resume_id,
-                Application.job_id == job_id
-            )
+            .filter(Application.resume_id == resume_id, Application.job_id == job_id)
             .first()
         )
 
     @staticmethod
     def update_status(
+<<<<<<< Updated upstream
         db: Session,
         application: Application,
         status: str,
         recruiter_notes: str | None = None
+=======
+        db: Session, application: Application, status: str, notes: str | None = None
+>>>>>>> Stashed changes
     ):
 
         application.status = status
@@ -85,19 +69,13 @@ class ApplicationRepository:
         return application
 
     @staticmethod
-    def delete_application(
-        db: Session,
-        application: Application
-    ):
+    def delete_application(db: Session, application: Application):
 
         db.delete(application)
         db.commit()
 
     @staticmethod
-    def get_job_applications(
-        db: Session,
-        job_id: int
-    ):
+    def get_job_applications(db: Session, job_id: int):
 
         return (
             db.query(Application)
@@ -107,10 +85,7 @@ class ApplicationRepository:
         )
 
     @staticmethod
-    def get_resume_applications(
-        db: Session,
-        resume_id: int
-    ):
+    def get_resume_applications(db: Session, resume_id: int):
 
         return (
             db.query(Application)
@@ -120,19 +95,14 @@ class ApplicationRepository:
         )
 
     @staticmethod
-    def application_exists(
-        db: Session,
-        user_id: int,
-        resume_id: int,
-        job_id: int
-    ):
+    def application_exists(db: Session, user_id: int, resume_id: int, job_id: int):
 
         return (
             db.query(Application)
             .filter(
                 Application.user_id == user_id,
                 Application.resume_id == resume_id,
-                Application.job_id == job_id
+                Application.job_id == job_id,
             )
             .first()
         )
@@ -146,61 +116,41 @@ class ApplicationRepository:
         status: str | None = None,
         location: str | None = None,
         from_date=None,
-        to_date=None
+        to_date=None,
     ):
 
         query = (
             db.query(Application)
+            .options(joinedload(Application.job))
             .join(Job, Application.job_id == Job.id)
             .filter(Application.user_id == user_id)
         )
 
         if company:
-            query = query.filter(
-                Job.company.ilike(f"%{company}%")
-            )
+            query = query.filter(Job.company.ilike(f"%{company}%"))
 
         if title:
-            query = query.filter(
-                Job.title.ilike(f"%{title}%")
-            )
+            query = query.filter(Job.title.ilike(f"%{title}%"))
 
         if status:
-            query = query.filter(
-                Application.status == status
-            )
+            query = query.filter(Application.status == status)
 
         if location:
-            query = query.filter(
-                Job.location.ilike(f"%{location}%")
-            )
+            query = query.filter(Job.location.ilike(f"%{location}%"))
 
         if from_date:
-            query = query.filter(
-                Application.applied_at >= from_date
-            )
+            query = query.filter(Application.applied_at >= from_date)
 
         if to_date:
-            query = query.filter(
-                Application.applied_at <= to_date
-            )
+            query = query.filter(Application.applied_at <= to_date)
 
-        return (
-            query.order_by(Application.applied_at.desc())
-            .all()
-        )
+        return query.order_by(Application.applied_at.desc()).all()
 
     @staticmethod
-    def get_dashboard_statistics(
-        db: Session,
-        user_id: int
-    ):
+    def get_dashboard_statistics(db: Session, user_id: int):
 
         stats = (
-            db.query(
-                Application.status,
-                func.count(Application.id)
-            )
+            db.query(Application.status, func.count(Application.id))
             .filter(Application.user_id == user_id)
             .group_by(Application.status)
             .all()
@@ -214,7 +164,7 @@ class ApplicationRepository:
             "assessment": 0,
             "offer": 0,
             "rejected": 0,
-            "withdrawn": 0
+            "withdrawn": 0,
         }
 
         for status, count in stats:

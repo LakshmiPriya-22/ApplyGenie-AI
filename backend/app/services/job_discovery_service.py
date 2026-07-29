@@ -15,22 +15,39 @@ class JobDiscoveryService:
 
         Responsibilities:
         - Validate job data
-        - Remove duplicates
+        - Remove duplicates within the current discovery run
+        - Skip jobs already present in the database
         - Save new jobs
-        - Return statistics
         """
 
         total_found = len(jobs)
         new_jobs = 0
         duplicates = 0
 
+        # Prevent duplicates returned by providers in the same run
+        seen = set()
+
         for job in jobs:
 
-            title = job.get("title")
-            company = job.get("company")
+            title = (job.get("title") or "").strip()
+            company = (job.get("company") or "").strip()
+            location = (job.get("location") or "").strip()
 
             if not title or not company:
                 continue
+
+            # Case-insensitive duplicate key
+            key = (
+                title.strip().lower(),
+                company.strip().lower(),
+                location.strip().lower()
+            )
+
+            if key in seen:
+                duplicates += 1
+                continue
+
+            seen.add(key)
 
             existing = JobRepository.get_by_title_company(
                 db=db,

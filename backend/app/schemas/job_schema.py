@@ -35,11 +35,15 @@ class JobResponse(BaseModel):
     location: str
     employment_type: str
     experience_level: str
-    salary: Optional[str]
+
+    salary: Optional[str] = None
     description: str
     requirements: str
-    skills: Optional[str]
-    posted_by: int
+    skills: Optional[str] = None
+
+    # External jobs have no owner
+    posted_by: Optional[int] = None
+
     created_at: datetime
     updated_at: datetime
 

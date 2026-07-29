@@ -9,7 +9,10 @@ from app.schemas.resume_schema import (
     ResumeUploadResponse,
     DeleteResponse
 )
-from app.schemas.resume_analysis_schema import ResumeAnalysisResponse
+
+from app.schemas.resume_analysis_schema import (
+    ResumeAnalysisResponse
+)
 
 from app.services.resume_service import ResumeService
 from app.services.resume_analysis_service import ResumeAnalysisService
@@ -20,9 +23,9 @@ router = APIRouter(
 )
 
 
-# -------------------------------
+# -----------------------------------
 # Upload Resume
-# -------------------------------
+# -----------------------------------
 @router.post(
     "/upload",
     response_model=ResumeUploadResponse
@@ -39,9 +42,34 @@ def upload_resume(
     )
 
 
-# -------------------------------
-# Get All Resumes of Logged-in User
-# -------------------------------
+# -----------------------------------
+# Get Latest Resume of Logged-in User
+# -----------------------------------
+@router.get(
+    "/me",
+    response_model=ResumeResponse
+)
+def get_my_resume(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    resumes = ResumeService.get_all_resumes(
+        db=db,
+        current_user=current_user
+    )
+
+    if not resumes:
+        raise HTTPException(
+            status_code=404,
+            detail="No resume uploaded."
+        )
+
+    return resumes[-1]
+
+
+# -----------------------------------
+# Get All Resumes
+# -----------------------------------
 @router.get(
     "",
     response_model=list[ResumeResponse]
@@ -56,9 +84,9 @@ def get_all_resumes(
     )
 
 
-# -------------------------------
+# -----------------------------------
 # Get Resume By ID
-# -------------------------------
+# -----------------------------------
 @router.get(
     "/{resume_id}",
     response_model=ResumeResponse
@@ -75,9 +103,9 @@ def get_resume(
     )
 
 
-# -------------------------------
+# -----------------------------------
 # Get Resume Analysis
-# -------------------------------
+# -----------------------------------
 @router.get(
     "/{resume_id}/analysis",
     response_model=ResumeAnalysisResponse
@@ -92,7 +120,7 @@ def get_resume_analysis(
         resume_id=resume_id
     )
 
-    if not analysis:
+    if analysis is None:
         raise HTTPException(
             status_code=404,
             detail="Resume analysis not found."
@@ -101,9 +129,9 @@ def get_resume_analysis(
     return analysis
 
 
-# -------------------------------
+# -----------------------------------
 # Delete Resume
-# -------------------------------
+# -----------------------------------
 @router.delete(
     "/{resume_id}",
     response_model=DeleteResponse
@@ -118,3 +146,23 @@ def delete_resume(
         resume_id=resume_id,
         current_user=current_user
     )
+@router.get(
+    "/me",
+    response_model=ResumeResponse
+)
+def get_my_resume(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    resumes = ResumeService.get_all_resumes(
+        db=db,
+        current_user=current_user
+    )
+
+    if not resumes:
+        raise HTTPException(
+            status_code=404,
+            detail="No resume uploaded."
+        )
+
+    return resumes[-1]

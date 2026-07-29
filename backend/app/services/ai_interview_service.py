@@ -1,24 +1,17 @@
-import json
-
-from app.core.logger import logger
 from app.rag.rag_service import RAGService
-from app.rag.llm import llm
 
 
 class AIInterviewService:
 
     @staticmethod
     def generate_interview(
-        resume,
-        job,
-        match,
-        interview_type: str,
-        difficulty: str
-    ):
+        resume_analysis: dict, job, match, interview_type: str, difficulty: str
+    ) -> dict:
         """
-        Generate interview questions using RAG.
+        Generate interview questions using AI.
         """
 
+<<<<<<< Updated upstream
         logger.info("Generating AI interview questions...")
 
         job_context = f"""
@@ -210,3 +203,23 @@ Rules:
                 "suggestions": [],
                 "overall_feedback": response
             }
+=======
+        return RAGService.generate_interview(
+            resume_analysis=resume_analysis,
+            job=job,
+            match=match,
+            interview_type=interview_type,
+            difficulty=difficulty,
+        )
+
+    @staticmethod
+    def evaluate_answers(questions: list, answers: list) -> dict:
+        """
+        Evaluate interview answers using AI.
+        """
+
+        return RAGService.evaluate_interview_answers(
+            questions=questions,
+            answers=answers,
+        )
+>>>>>>> Stashed changes

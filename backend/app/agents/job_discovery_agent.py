@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 
 from app.providers.provider_manager import ProviderManager
 from app.services.job_discovery_service import JobDiscoveryService
-from app.providers.greenhouse_provider import GreenhouseProvider
 
 
 class JobDiscoveryAgent:

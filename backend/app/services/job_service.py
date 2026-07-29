@@ -1,8 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.logger import logger
-
 from app.repositories.job_repository import JobRepository
 
 
@@ -14,15 +12,12 @@ class JobService:
         job,
         current_user
     ):
+        job_data = job.model_dump()
+        job_data["posted_by"] = current_user.id
 
-        logger.info(
-            f"Creating job by user {current_user.id}"
-        )
-
-        return JobRepository.create_job(
+        return JobRepository.create(
             db=db,
-            job=job,
-            user_id=current_user.id
+            job_data=job_data
         )
 
     @staticmethod
@@ -37,42 +32,32 @@ class JobService:
         skills: str | None = None,
         sort: str | None = None
     ):
-
-        return JobRepository.get_all_jobs(
-            db=db,
-            page=page,
-            size=size,
-            company=company,
-            location=location,
-            employment_type=employment_type,
-            experience_level=experience_level,
-            skills=skills,
-            sort=sort
-        )
+        return JobRepository.get_all(db)
 
     @staticmethod
     def get_my_jobs(
         db: Session,
         current_user
     ):
+        jobs = JobRepository.get_all(db)
 
-        return JobRepository.get_jobs_by_user(
-            db=db,
-            user_id=current_user.id
-        )
+        return [
+            job
+            for job in jobs
+            if job.posted_by == current_user.id
+        ]
 
     @staticmethod
     def get_job(
         db: Session,
         job_id: int
     ):
-
-        job = JobRepository.get_job_by_id(
+        job = JobRepository.get_by_id(
             db=db,
             job_id=job_id
         )
 
-        if not job:
+        if job is None:
             raise HTTPException(
                 status_code=404,
                 detail="Job not found."
@@ -87,32 +72,9 @@ class JobService:
         job_update,
         current_user
     ):
-
-        job = JobRepository.get_job_by_id(
-            db=db,
-            job_id=job_id
-        )
-
-        if not job:
-            raise HTTPException(
-                status_code=404,
-                detail="Job not found."
-            )
-
-        if job.posted_by != current_user.id:
-            raise HTTPException(
-                status_code=403,
-                detail="Access denied."
-            )
-
-        logger.info(
-            f"Updating job {job.id}"
-        )
-
-        return JobRepository.update_job(
-            db=db,
-            job=job,
-            job_update=job_update
+        raise HTTPException(
+            status_code=501,
+            detail="Update not implemented."
         )
 
     @staticmethod
@@ -121,31 +83,20 @@ class JobService:
         job_id: int,
         current_user
     ):
-
-        job = JobRepository.get_job_by_id(
+        job = JobRepository.get_by_id(
             db=db,
             job_id=job_id
         )
 
-        if not job:
+        if job is None:
             raise HTTPException(
                 status_code=404,
                 detail="Job not found."
             )
 
-        if job.posted_by != current_user.id:
-            raise HTTPException(
-                status_code=403,
-                detail="Access denied."
-            )
-
-        JobRepository.delete_job(
+        JobRepository.delete(
             db=db,
             job=job
-        )
-
-        logger.info(
-            f"Deleted job {job.id}"
         )
 
         return {
