@@ -1,61 +1,163 @@
 import { useEffect, useState } from "react";
+
 import DashboardLayout from "../../components/layout/DashboardLayout";
-import resumeService from "../../services/resumeService";
 
-const ResumeAnalysis = () => {
-  const [analysis, setAnalysis] = useState("");
-  const [loading, setLoading] = useState(false);
+import { getLatestAnalysis } from "../../api/analyzer";
 
-  useEffect(() => {
-    fetchAnalysis();
-  }, []);
+export default function ResumeAnalysis() {
 
-  const fetchAnalysis = async () => {
-    setLoading(true);
+    const [analysis, setAnalysis] = useState(null);
 
-    try {
-      const response = await resumeService.resumeAnalysis();
+    const [loading, setLoading] = useState(true);
 
-      setAnalysis(response);
+    useEffect(() => {
+        loadAnalysis();
+    }, []);
 
-    } catch (error) {
-      console.error(error);
+    const loadAnalysis = async () => {
+
+        try {
+
+            const data = await getLatestAnalysis();
+
+console.log(data);
+
+setAnalysis(data.analysis);
+
+        } catch (err) {
+
+            console.log(err);
+
+        } finally {
+
+            setLoading(false);
+
+        }
+
+    };
+
+    if (loading) {
+
+        return (
+            <DashboardLayout>
+                <h1 className="text-3xl font-bold">
+                    Loading Analysis...
+                </h1>
+            </DashboardLayout>
+        );
+
     }
 
-    setLoading(false);
-  };
+    if (!analysis) {
 
-  return (
-    <DashboardLayout>
+        return (
+            <DashboardLayout>
+                <h1 className="text-3xl font-bold">
+                    No Analysis Found
+                </h1>
+            </DashboardLayout>
+        );
 
-      <div className="max-w-6xl mx-auto">
+    }
 
-        <h1 className="text-3xl font-bold mb-2">
-          Resume Analysis
-        </h1>
+    return (
 
-        <p className="text-gray-500 mb-8">
-          AI-generated analysis of your resume.
-        </p>
+        <DashboardLayout>
 
-        <div className="bg-white rounded-xl shadow-lg p-8">
+            <h1 className="text-4xl font-bold mb-10">
 
-          {loading ? (
-            <p className="text-center">
-              Analyzing Resume...
-            </p>
-          ) : (
-            <div className="prose max-w-none whitespace-pre-wrap">
-              {analysis || "No analysis available."}
+                AI Resume Analysis
+
+            </h1>
+
+            <div className="bg-[#111827] rounded-2xl p-8 space-y-8">
+
+                <div>
+
+                    <h2 className="text-2xl font-semibold">
+
+                        ATS Score
+
+                    </h2>
+
+                    <h1 className="text-6xl text-green-500 mt-4">
+
+                        {analysis.resume_score}%
+
+                    </h1>
+
+                </div>
+
+                <div>
+
+                    <h2 className="text-2xl font-semibold mb-4">
+
+                        Skills
+
+                    </h2>
+
+                    <ul className="space-y-2">
+
+                        {analysis.technical_skills?.map((skill) => (
+  <li key={skill}>✅ {skill}</li>
+))}
+
+                    </ul>
+
+                </div>
+
+                <div>
+
+                    <h2 className="text-2xl font-semibold mb-4">
+
+                        Missing Skills
+
+                    </h2>
+
+                    <ul className="space-y-2">
+
+                        {analysis.missing_skills?.map(skill => (
+
+                            <li key={skill}>
+
+                                ❌ {skill}
+
+                            </li>
+
+                        ))}
+
+                    </ul>
+
+                </div>
+
+                <div>
+
+                    <h2 className="text-2xl font-semibold mb-4">
+
+                        Suggestions
+
+                    </h2>
+
+                    <ul className="space-y-2">
+
+                        {analysis.career_suggestions?.map(item => (
+
+                            <li key={item}>
+
+                                • {item}
+
+                            </li>
+
+                        ))}
+
+                    </ul>
+
+                </div>
+
             </div>
-          )}
 
-        </div>
+        </DashboardLayout>
 
-      </div>
+    );
 
-    </DashboardLayout>
-  );
-};
-
-export default ResumeAnalysis;
+}

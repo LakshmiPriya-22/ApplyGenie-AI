@@ -1,73 +1,128 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
-import Dashboard from "./pages/dashboard/Dashboard";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+
+import Dashboard from "./pages/Dashboard";
 
 import ProfileResume from "./pages/profile/ProfileResume";
-import Profile from "./pages/profile/Profile";
-
 import ResumeAnalysis from "./pages/resume/ResumeAnalysis";
-import ATSAnalysis from "./pages/resume/ATSAnalysis";
+//import ATSAnalysis from "./pages/resume/ATSAnalysis";
 import ResumeOptimizer from "./pages/resume/ResumeOptimizer";
-import ResumeChat from "./pages/resume/ResumeChat";
+//import ResumeChat from "./pages/resume/ResumeChat";
+//import CoverLetter from "./pages/resume/CoverLetter";
 
-import Opportunities from "./pages/jobs/Opportunities";
-import CompanyHub from "./pages/company/CompanyHub";
-import ApplicationTracker from "./pages/applications/ApplicationTracker";
-import Notifications from "./pages/notifications/Notifications";
+import JobOpportunities from "./pages/jobs/JobOpportunities";
+//import CompanyHub from "./pages/jobs/CompanyHub";
+
+import MyApplications from "./pages/applications/MyApplications";
+
 import InterviewPrep from "./pages/interview/InterviewPrep";
-import CoverLetter from "./pages/coverletter/CoverLetter";
-import Settings from "./pages/settings/Settings";
 
-import ProtectedRoute from "./routes/ProtectedRoute";
+//import Notifications from "./pages/notifications/Notifications";
+
+//import Profile from "./pages/profile/Profile";
+//import Settings from "./pages/settings/Settings";
 
 function App() {
   return (
-    <Routes>
+    <BrowserRouter>
 
-      <Route path="/" element={<Navigate to="/login" />} />
+      <Routes>
 
-      <Route path="/login" element={<Login />} />
+        {/* Authentication */}
 
-      <Route path="/register" element={<Register />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
+        {/* Dashboard */}
 
-      <Route path="/profile-resume" element={<ProtectedRoute><ProfileResume /></ProtectedRoute>} />
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        />
 
-      <Route path="/resume-analysis" element={<ProtectedRoute><ResumeAnalysis /></ProtectedRoute>} />
+        {/* Resume */}
 
-      <Route path="/ats-analysis" element={<ProtectedRoute><ATSAnalysis /></ProtectedRoute>} />
+        <Route
+          path="/profile-resume"
+          element={<ProfileResume />}
+        />
 
-      <Route path="/resume-optimizer" element={<ProtectedRoute><ResumeOptimizer /></ProtectedRoute>} />
+        <Route
+          path="/resume-analysis"
+          element={<ResumeAnalysis />}
+        />
 
-      <Route path="/resume-chat" element={<ProtectedRoute><ResumeChat /></ProtectedRoute>} />
+        <Route
+          path="/ats-analysis"
+          element={<ATSAnalysis />}
+        />
 
-      <Route path="/opportunities" element={<ProtectedRoute><Opportunities /></ProtectedRoute>} />
+        <Route
+          path="/resume-optimizer"
+          element={<ResumeOptimizer />}
+        />
 
-      <Route path="/company-hub" element={<ProtectedRoute><CompanyHub /></ProtectedRoute>} />
+        <Route
+          path="/resume-chat"
+          element={<ResumeChat />}
+        />
 
-      <Route path="/applications" element={<ProtectedRoute><ApplicationTracker /></ProtectedRoute>} />
+        <Route
+          path="/cover-letter"
+          element={<CoverLetter />}
+        />
 
-      <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+        {/* Jobs */}
 
-      <Route path="/interview-prep" element={<ProtectedRoute><InterviewPrep /></ProtectedRoute>} />
+        <Route
+          path="/opportunities"
+          element={<JobOpportunities />}
+        />
 
-      <Route path="/cover-letter" element={<ProtectedRoute><CoverLetter /></ProtectedRoute>} />
+        <Route
+          path="/company-hub"
+          element={<CompanyHub />}
+        />
 
-      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        {/* Applications */}
 
-      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route
+          path="/applications"
+          element={<MyApplications />}
+        />
 
-    </Routes>
+        {/* Interview */}
+
+        <Route
+          path="/interview-prep"
+          element={<InterviewPrep />}
+        />
+
+        {/* Notifications */}
+
+        <Route
+          path="/notifications"
+          element={<Notifications />}
+        />
+
+        {/* User */}
+
+        <Route
+          path="/profile"
+          element={<Profile />}
+        />
+
+        <Route
+          path="/settings"
+          element={<Settings />}
+        />
+
+      </Routes>
+
+    </BrowserRouter>
   );
 }
 

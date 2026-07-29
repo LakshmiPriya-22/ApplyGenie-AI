@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 
 const DashboardLayout = ({ children }) => {
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-[#030712] text-white">
 
       {/* Sidebar */}
       <Sidebar />
@@ -15,7 +15,7 @@ const DashboardLayout = ({ children }) => {
         <Navbar />
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-8 bg-[#030712]">
 
           {children}
 
