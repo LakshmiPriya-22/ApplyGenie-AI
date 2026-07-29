@@ -22,69 +22,49 @@ class InterviewService:
         job_id: int,
         interview_type: str,
         difficulty: str,
-        current_user
+        current_user,
     ):
 
-        logger.info(
-            f"Generating interview for Resume {resume_id} and Job {job_id}"
-        )
+        logger.info(f"Generating interview for Resume {resume_id} and Job {job_id}")
 
         # -----------------------------
         # Verify Resume
         # -----------------------------
-        resume = ResumeRepository.get_by_id(
-            db=db,
-            resume_id=resume_id
-        )
+        resume = ResumeRepository.get_by_id(db=db, resume_id=resume_id)
 
         if not resume:
-            raise HTTPException(
-                status_code=404,
-                detail="Resume not found."
-            )
+            raise HTTPException(status_code=404, detail="Resume not found.")
 
         if resume.user_id != current_user.id:
-            raise HTTPException(
-                status_code=403,
-                detail="Access denied."
-            )
+            raise HTTPException(status_code=403, detail="Access denied.")
 
         # -----------------------------
         # Verify Job
         # -----------------------------
+<<<<<<< Updated upstream
         job = JobRepository.get_by_id(
-        db=db,
-        job_id=job_id
+            db=db,
+            job_id=job_id
         )
+=======
+        job = JobRepository.get_by_id(db=db, job_id=job_id)
+>>>>>>> Stashed changes
 
         if not job:
-            raise HTTPException(
-                status_code=404,
-                detail="Job not found."
-            )
+            raise HTTPException(status_code=404, detail="Job not found.")
 
         # -----------------------------
         # Resume Analysis
         # -----------------------------
-        analysis = ResumeAnalysisRepository.get_by_resume_id(
-            db=db,
-            resume_id=resume_id
-        )
+        analysis = ResumeAnalysisRepository.get_by_resume_id(db=db, resume_id=resume_id)
 
         if not analysis:
-            raise HTTPException(
-                status_code=404,
-                detail="Resume analysis not found."
-            )
+            raise HTTPException(status_code=404, detail="Resume analysis not found.")
 
         # -----------------------------
         # Get Existing Job Match
         # -----------------------------
-        match = JobMatchRepository.get_match(
-            db=db,
-            resume_id=resume_id,
-            job_id=job_id
-        )
+        match = JobMatchRepository.get_match(db=db, resume_id=resume_id, job_id=job_id)
 
         # -----------------------------
         # Generate Match if Missing
@@ -94,8 +74,12 @@ class InterviewService:
             logger.info("Generating new job match...")
 
             ai_result = AIMatchingService.match_resume_with_job(
-                resume_analysis=analysis.analysis,
+<<<<<<< Updated upstream
+                resume=resume,
                 job=job
+=======
+                resume_analysis=analysis.analysis, job=job
+>>>>>>> Stashed changes
             )
 
             match = JobMatchRepository.create_match(
@@ -107,7 +91,7 @@ class InterviewService:
                 missing_skills=ai_result["missing_skills"],
                 recommendations=ai_result["recommendations"],
                 summary=ai_result["summary"],
-                ai_response=ai_result
+                ai_response=ai_result,
             )
 
         # -----------------------------
@@ -118,40 +102,47 @@ class InterviewService:
             resume_id=resume_id,
             job_id=job_id,
             interview_type=interview_type,
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
         if interview:
             return interview
 
         # -----------------------------
-        # Generate Questions
+        # Generate Interview Questions
         # -----------------------------
         questions = AIInterviewService.generate_interview(
-            resume_analysis=analysis.analysis,
+            resume=resume,
             job=job,
             match=match,
             interview_type=interview_type,
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
         # -----------------------------
         # Save Interview
         # -----------------------------
         interview = InterviewRepository.create_interview(
-        db=db,
-        user_id=current_user.id,
-        resume_id=resume_id,
-        job_id=job_id,
-        job_match_id=match.id,
-        interview_type=interview_type,
-        difficulty=difficulty,
-        questions=questions["questions"],
-        tips=questions.get("tips"),
-        roadmap=questions.get("roadmap"),
-        summary=questions.get("summary")
-    )
+<<<<<<< Updated upstream
+            db=db,
+            user_id=current_user.id,
+            resume_id=resume_id,
+            job_id=job_id,
+            job_match_id=match.id,
+            interview_type=interview_type,
+            difficulty=difficulty,
+            questions=questions["questions"],
+            tips=questions.get("tips"),
+            roadmap=questions.get("roadmap"),
+            summary=questions.get("summary")
+        )
 
+        logger.info(
+            f"Interview {interview.id} created successfully."
+        )
+
+        return interview
+    
     @staticmethod
     def submit_answers(
         db: Session,
@@ -161,10 +152,22 @@ class InterviewService:
     ):
 
         interview = InterviewRepository.get_interview_by_id(
+=======
+>>>>>>> Stashed changes
             db=db,
-            interview_id=interview_id
+            user_id=current_user.id,
+            resume_id=resume_id,
+            job_id=job_id,
+            job_match_id=match.id,
+            interview_type=interview_type,
+            difficulty=difficulty,
+            questions=questions["questions"],
+            tips=questions.get("tips"),
+            roadmap=questions.get("roadmap"),
+            summary=questions.get("summary"),
         )
 
+<<<<<<< Updated upstream
         if not interview:
             raise HTTPException(
                 status_code=404,
@@ -189,11 +192,13 @@ class InterviewService:
         )
 
         InterviewRepository.update_feedback(
-    db=db,
-    interview=interview,
-    feedback=result["feedback"],
-    score=result["score"]
-)
+            db=db,
+            interview=interview,
+            feedback=result["feedback"],
+            score=result["score"]
+        )
+
+        return interview
 
     @staticmethod
     def get_interview(
@@ -219,48 +224,71 @@ class InterviewService:
                 detail="Access denied."
             )
 
+=======
+>>>>>>> Stashed changes
         return interview
 
     @staticmethod
-    def get_my_interviews(
-        db: Session,
-        current_user
-    ):
-
-        return InterviewRepository.get_user_interviews(
-            db=db,
-            user_id=current_user.id
-        )
-
-    @staticmethod
-    def delete_interview(
-        db: Session,
-        interview_id: int,
-        current_user
-    ):
+    def submit_answers(db: Session, interview_id: int, answers: list, current_user):
 
         interview = InterviewRepository.get_interview_by_id(
-            db=db,
-            interview_id=interview_id
+            db=db, interview_id=interview_id
         )
 
         if not interview:
-            raise HTTPException(
-                status_code=404,
-                detail="Interview not found."
-            )
+            raise HTTPException(status_code=404, detail="Interview not found.")
 
         if interview.user_id != current_user.id:
-            raise HTTPException(
-                status_code=403,
-                detail="Access denied."
-            )
+            raise HTTPException(status_code=403, detail="Access denied.")
 
-        InterviewRepository.delete_interview(
-            db=db,
-            interview=interview
+        InterviewRepository.update_answers(db=db, interview=interview, answers=answers)
+
+        result = AIInterviewService.evaluate_answers(
+            questions=interview.questions, answers=answers
         )
 
-        return {
-            "message": "Interview deleted successfully."
-        }
+        InterviewRepository.update_feedback(
+            db=db,
+            interview=interview,
+            feedback=result["feedback"],
+            score=result["score"],
+        )
+
+        return InterviewRepository.get_interview_by_id(db=db, interview_id=interview.id)
+
+    @staticmethod
+    def get_interview(db: Session, interview_id: int, current_user):
+
+        interview = InterviewRepository.get_interview_by_id(
+            db=db, interview_id=interview_id
+        )
+
+        if not interview:
+            raise HTTPException(status_code=404, detail="Interview not found.")
+
+        if interview.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Access denied.")
+
+        return interview
+
+    @staticmethod
+    def get_my_interviews(db: Session, current_user):
+
+        return InterviewRepository.get_user_interviews(db=db, user_id=current_user.id)
+
+    @staticmethod
+    def delete_interview(db: Session, interview_id: int, current_user):
+
+        interview = InterviewRepository.get_interview_by_id(
+            db=db, interview_id=interview_id
+        )
+
+        if not interview:
+            raise HTTPException(status_code=404, detail="Interview not found.")
+
+        if interview.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Access denied.")
+
+        InterviewRepository.delete_interview(db=db, interview=interview)
+
+        return {"message": "Interview deleted successfully."}

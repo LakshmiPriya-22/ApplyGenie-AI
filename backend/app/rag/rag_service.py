@@ -43,7 +43,11 @@ class RAGService:
     def resume_analysis(
         user_id: int,
         resume_id: int
-    ) -> str:
+    ) -> dict:
+        """
+        Generate structured AI resume analysis.
+        Returns JSON instead of markdown.
+        """
 
         context, documents = RAGService._get_context(
             user_id=user_id,
@@ -55,12 +59,35 @@ class RAGService:
             context=context
         )
 
-        answer = llm.generate(prompt)
+        response = llm.generate(prompt)
 
-        sources = CitationService.format_sources(documents)
+        if not response:
+            raise ValueError("LLM returned an empty response.")
 
-        return f"{answer}\n\nSources:\n{sources}"
+        response = response.strip()
 
+        response = re.sub(
+            r"^```(?:json)?",
+            "",
+            response,
+            flags=re.IGNORECASE
+        )
+
+        response = re.sub(
+            r"```$",
+            "",
+            response
+        ).strip()
+
+        try:
+            data = json.loads(response)
+
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Invalid JSON returned by LLM:\n\n{response}"
+            ) from e
+
+        return data
     @staticmethod
     def ats_analysis(
         user_id: int,

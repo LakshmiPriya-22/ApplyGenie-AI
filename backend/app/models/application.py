@@ -58,7 +58,7 @@ class Application(Base):
         default="Applied"
     )
 
-    notes = Column(
+    recruiter_notes = Column(
         Text,
         nullable=True
     )

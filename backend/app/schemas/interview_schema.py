@@ -5,40 +5,12 @@ from pydantic import BaseModel, ConfigDict
 
 
 # ---------------------------------------
-# Generate Interview
+# Generate Interview Request
 # ---------------------------------------
 
-class InterviewCreate(BaseModel):
+class InterviewGenerateRequest(BaseModel):
     resume_id: int
     job_id: int
-    interview_type: str
-    difficulty: str
-
-
-# ---------------------------------------
-# Interview Question
-# ---------------------------------------
-
-class InterviewQuestion(BaseModel):
-    question: str
-    category: str
-
-
-# ---------------------------------------
-# Interview Answer
-# ---------------------------------------
-
-class InterviewAnswer(BaseModel):
-    question: str
-    answer: str
-
-
-# ---------------------------------------
-# Submit Answers
-# ---------------------------------------
-
-class InterviewSubmit(BaseModel):
-    answers: List[InterviewAnswer]
 
 
 # ---------------------------------------
@@ -57,9 +29,14 @@ class InterviewResponse(BaseModel):
     difficulty: str
 
     questions: List[Dict[str, Any]]
-    answers: Optional[List[Dict[str, Any]]] = None
 
-    feedback: Optional[Dict[str, Any]] = None
+    answers: Optional[List[Dict[str, Any]]] = None
+    feedback: Optional[List[Dict[str, Any]]] = None
+
+    tips: Optional[List[str]] = None
+    roadmap: Optional[List[str]] = None
+
+    summary: Optional[str] = None
 
     score: Optional[float] = None
 
@@ -70,23 +47,15 @@ class InterviewResponse(BaseModel):
 
 
 # ---------------------------------------
-# Interview Feedback
+# Interview List Response
 # ---------------------------------------
 
-class InterviewFeedbackResponse(BaseModel):
-    score: float
-
-    strengths: List[str]
-
-    weaknesses: List[str]
-
-    suggestions: List[str]
-
-    overall_feedback: str
+class InterviewListResponse(BaseModel):
+    interviews: List[InterviewResponse]
 
 
 # ---------------------------------------
-# Delete Interview
+# Delete Response
 # ---------------------------------------
 
 class DeleteInterviewResponse(BaseModel):

@@ -18,7 +18,6 @@ def analyze_latest_resume(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-
     resume = (
         db.query(Resume)
         .filter(Resume.user_id == current_user.id)
@@ -28,6 +27,7 @@ def analyze_latest_resume(
 
     if resume is None:
         return {
+            "success": False,
             "message": "No resume uploaded."
         }
 
@@ -38,7 +38,14 @@ def analyze_latest_resume(
 
     if analysis is None:
         return {
+            "success": False,
             "message": "Analysis not found."
         }
 
-    return analysis.analysis
+    return {
+        "success": True,
+        "resume_id": resume.id,
+        "filename": resume.filename,
+        "analysis": analysis.analysis,
+        "created_at": analysis.created_at
+    }

@@ -43,7 +43,7 @@ class InterviewScheduleService:
             location=request.location,
             scheduled_at=request.scheduled_at,
             status="Scheduled",
-            notes=request.notes,
+            recruiter_notes=request.notes,
         )
 
         logger.info(

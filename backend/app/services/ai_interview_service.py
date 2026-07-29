@@ -1,24 +1,17 @@
-import json
-
-from app.core.logger import logger
 from app.rag.rag_service import RAGService
-from app.rag.llm import llm
 
 
 class AIInterviewService:
 
     @staticmethod
     def generate_interview(
-        resume,
-        job,
-        match,
-        interview_type: str,
-        difficulty: str
-    ):
+        resume_analysis: dict, job, match, interview_type: str, difficulty: str
+    ) -> dict:
         """
-        Generate interview questions using RAG.
+        Generate interview questions using AI.
         """
 
+<<<<<<< Updated upstream
         logger.info("Generating AI interview questions...")
 
         job_context = f"""
@@ -45,49 +38,61 @@ Difficulty:
 {difficulty}
 """
 
-        context = RAGService._get_context(
+        context, _ = RAGService._get_context(
             user_id=resume.user_id,
             resume_id=resume.id,
             query=job_context
         )
 
         prompt = f"""
-You are a Senior Technical Interviewer.
+You are a Senior Software Engineering Interviewer.
 
 Resume Context:
+
 {context}
 
 Job Details:
+
 {job_context}
 
-Generate exactly 10 interview questions.
+Generate an interview preparation plan.
+
+Return ONLY valid JSON.
+
+Do NOT return markdown.
+Do NOT explain anything.
+
+Return EXACTLY this format:
+
+{{
+    "questions":[
+        {{
+            "question":"",
+            "category":"",
+            "difficulty":""
+        }}
+    ],
+
+    "tips":[
+        ""
+    ],
+
+    "roadmap":[
+        ""
+    ],
+
+    "summary":""
+}}
 
 Rules:
 
-- Return ONLY valid JSON.
-- Do NOT return markdown.
-- Do NOT explain anything.
-
-JSON Format:
-
-[
-    {{
-        "question": "",
-        "category": ""
-    }}
-]
-
-Interview Type:
-
-Technical -> Technical questions only
-
-HR -> HR questions only
-
-Behavioral -> Behavioral questions only
-
-Coding -> Coding questions only
-
-Mixed -> Mix all categories.
+1. Generate exactly 10 interview questions.
+2. Questions must match the resume and job.
+3. Include Technical, HR, Behavioural or Coding questions depending on interview_type.
+4. Keep difficulty consistent.
+5. Give useful interview tips.
+6. Give a learning roadmap.
+7. Write a short summary.
 """
 
         response = llm.generate(
@@ -95,34 +100,39 @@ Mixed -> Mix all categories.
             temperature=0.3
         )
 
-        logger.info(
-            "Interview generated successfully."
-        )
+        logger.info("Interview generated successfully.")
 
         try:
             return json.loads(response)
 
         except Exception:
 
-            return [
-                {
-                    "question": response,
-                    "category": "General"
-                }
-            ]
+            return {
+                "questions": [
+                    {
+                        "question": response,
+                        "category": "General",
+                        "difficulty": difficulty
+                    }
+                ],
+                "tips": [],
+                "roadmap": [],
+                "summary": ""
+            }
 
     @staticmethod
     def evaluate_answers(
         questions,
         answers
     ):
+        """
+        Evaluate candidate interview answers.
+        """
 
-        logger.info(
-            "Evaluating interview answers..."
-        )
+        logger.info("Evaluating interview answers...")
 
         prompt = f"""
-You are an experienced Software Engineering Interviewer.
+You are an experienced Software Engineering interviewer.
 
 Interview Questions:
 
@@ -136,27 +146,41 @@ Evaluate every answer.
 
 Return ONLY valid JSON.
 
+Return EXACTLY this format:
+
 {{
     "score":90,
+
+    "feedback":[
+        {{
+            "question":"",
+            "rating":9,
+            "comment":""
+        }}
+    ],
+
     "strengths":[
         ""
     ],
+
     "weaknesses":[
         ""
     ],
+
     "suggestions":[
         ""
     ],
+
     "overall_feedback":""
 }}
 
 Rules:
 
-Score must be between 0 and 100.
-
-Do NOT return markdown.
-
-Do NOT explain anything.
+1. Score between 0 and 100.
+2. Rate every answer.
+3. Give constructive feedback.
+4. Suggest improvements.
+5. Return only JSON.
 """
 
         response = llm.generate(
@@ -164,9 +188,7 @@ Do NOT explain anything.
             temperature=0.2
         )
 
-        logger.info(
-            "Interview evaluation completed."
-        )
+        logger.info("Interview evaluation completed.")
 
         try:
             return json.loads(response)
@@ -175,8 +197,29 @@ Do NOT explain anything.
 
             return {
                 "score": 0,
+                "feedback": [],
                 "strengths": [],
                 "weaknesses": [],
                 "suggestions": [],
                 "overall_feedback": response
             }
+=======
+        return RAGService.generate_interview(
+            resume_analysis=resume_analysis,
+            job=job,
+            match=match,
+            interview_type=interview_type,
+            difficulty=difficulty,
+        )
+
+    @staticmethod
+    def evaluate_answers(questions: list, answers: list) -> dict:
+        """
+        Evaluate interview answers using AI.
+        """
+
+        return RAGService.evaluate_interview_answers(
+            questions=questions,
+            answers=answers,
+        )
+>>>>>>> Stashed changes

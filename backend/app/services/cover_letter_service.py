@@ -50,7 +50,7 @@ class CoverLetterService:
         # --------------------------------
         # Verify Job
         # --------------------------------
-        job = JobRepository.get_job_by_id(
+        job = JobRepository.get_by_id(
             db=db,
             job_id=job_id
         )
@@ -92,7 +92,7 @@ class CoverLetterService:
             logger.info("Generating new job match...")
 
             ai_result = AIMatchingService.match_resume_with_job(
-                resume_analysis=analysis.analysis,
+                resume=resume,
                 job=job
             )
 
@@ -112,7 +112,7 @@ class CoverLetterService:
         # Generate Cover Letter
         # --------------------------------
         content = AICoverLetterService.generate_cover_letter(
-            resume_analysis=analysis.analysis,
+            resume=resume,
             job=job,
             match=match
         )
