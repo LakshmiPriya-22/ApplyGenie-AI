@@ -1,77 +1,173 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/layout/DashboardLayout";
-import resumeService from "../../services/resumeService";
+import { getMyResume } from "../../api/resume";
+import { optimizeResume } from "../../api/resumeOptimizer";
 
-const ResumeOptimizer = () => {
+export default function ResumeOptimizer() {
+  const [resume, setResume] = useState(null);
   const [jobDescription, setJobDescription] = useState("");
-  const [optimizedResume, setOptimizedResume] = useState("");
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    loadResume();
+  }, []);
+
+  const loadResume = async () => {
+    try {
+      const data = await getMyResume();
+      setResume(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const handleOptimize = async () => {
-    if (!jobDescription.trim()) {
-      alert("Please enter a Job Description.");
+    if (!resume) {
+      alert("Upload a resume first.");
       return;
     }
 
-    setLoading(true);
-
-    try {
-      const response = await resumeService.resumeOptimizer({
-        job_description: jobDescription,
-      });
-
-      setOptimizedResume(response);
-
-    } catch (error) {
-      console.error(error);
-      alert("Failed to optimize resume.");
+    if (!jobDescription.trim()) {
+      alert("Enter a job description.");
+      return;
     }
 
-    setLoading(false);
+    try {
+      setLoading(true);
+
+      const data = await optimizeResume(
+        resume.id,
+        jobDescription
+      );
+
+      setResult(data);
+
+    } catch (err) {
+      console.log(err);
+      alert("Optimization failed.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto">
 
-        <h1 className="text-3xl font-bold mb-2">
-          Resume Optimizer
-        </h1>
+      <h1 className="text-4xl font-bold mb-8">
+        Resume Optimizer
+      </h1>
 
-        <p className="text-gray-500 mb-6">
-          Generate an ATS-optimized resume based on the Job Description.
-        </p>
+      <div className="bg-[#111827] rounded-2xl p-8">
 
         <textarea
-          rows="8"
-          placeholder="Paste Job Description here..."
+          rows={10}
+          placeholder="Paste Job Description..."
           value={jobDescription}
           onChange={(e) => setJobDescription(e.target.value)}
-          className="w-full border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          className="w-full p-4 rounded-xl bg-slate-800 border border-slate-700"
         />
 
         <button
           onClick={handleOptimize}
-          className="mt-5 bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-3 rounded-lg"
+          className="mt-6 bg-blue-600 px-6 py-3 rounded-xl"
         >
           {loading ? "Optimizing..." : "Optimize Resume"}
         </button>
 
-        <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
+      </div>
 
-          <h2 className="text-xl font-semibold mb-4">
-            Optimized Resume
-          </h2>
+      {result && (
+        <div className="bg-[#111827] rounded-2xl p-8 mt-8 space-y-8">
 
-          <div className="whitespace-pre-wrap">
-            {optimizedResume || "No optimized resume generated."}
+          <div>
+            <h2 className="text-2xl font-semibold">ATS Score</h2>
+            <h1 className="text-6xl text-green-500">
+              {result.ats_score}%
+            </h1>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">
+              Professional Summary
+            </h2>
+            <p>{result.summary}</p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">
+              Skills
+            </h2>
+
+            <div className="flex flex-wrap gap-2">
+              {result.skills?.map((skill) => (
+                <span
+                  key={skill}
+                  className="bg-blue-600 px-3 py-1 rounded-full"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">
+              Missing Skills
+            </h2>
+
+            <div className="flex flex-wrap gap-2">
+              {result.missing_skills?.map((skill) => (
+                <span
+                  key={skill}
+                  className="bg-red-600 px-3 py-1 rounded-full"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">
+              Suggestions
+            </h2>
+
+            <ul className="list-disc ml-6 space-y-2">
+              {result.suggestions?.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">
+              Projects
+            </h2>
+
+            {result.projects?.map((project, index) => (
+              <div
+                key={index}
+                className="bg-slate-800 rounded-xl p-4 mb-4"
+              >
+                <h3 className="font-bold">
+                  {project.title}
+                </h3>
+
+                <p className="mt-2">
+                  {project.description}
+                </p>
+
+                <p className="text-blue-400 mt-2">
+                  {project.technologies}
+                </p>
+              </div>
+            ))}
           </div>
 
         </div>
+      )}
 
-      </div>
     </DashboardLayout>
   );
-};
-
-export default ResumeOptimizer;
+}

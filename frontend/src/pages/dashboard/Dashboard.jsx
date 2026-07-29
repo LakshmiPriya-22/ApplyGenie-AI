@@ -8,17 +8,15 @@ const Dashboard = () => {
 
       {/* Heading */}
 
-      <div className="mb-8">
+      <div className="mb-10">
+  <h1 className="text-4xl font-bold text-slate-900">
+    Good Evening, {user?.email} 👋
+  </h1>
 
-        <h1 className="text-3xl font-bold">
-          Welcome Renuka 👋
-        </h1>
-
-        <p className="text-gray-500 mt-2">
-          Manage your placements with AI.
-        </p>
-
-      </div>
+  <p className="text-slate-600 mt-2">
+    Track your applications, interviews and AI recommendations.
+  </p>
+</div>
 
       {/* Stats */}
 
