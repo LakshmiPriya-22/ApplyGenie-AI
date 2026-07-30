@@ -1,128 +1,84 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
+// Authentication
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
+// Dashboard
 import Dashboard from "./pages/Dashboard";
 
+// Resume
 import ProfileResume from "./pages/profile/ProfileResume";
 import ResumeAnalysis from "./pages/resume/ResumeAnalysis";
-//import ATSAnalysis from "./pages/resume/ATSAnalysis";
 import ResumeOptimizer from "./pages/resume/ResumeOptimizer";
-//import ResumeChat from "./pages/resume/ResumeChat";
-//import CoverLetter from "./pages/resume/CoverLetter";
 
+// Jobs
 import JobOpportunities from "./pages/jobs/JobOpportunities";
-//import CompanyHub from "./pages/jobs/CompanyHub";
 
+// Applications
 import MyApplications from "./pages/applications/MyApplications";
+import JobMatch from "./pages/jobs/JobMatch";
 
+// Interview
 import InterviewPrep from "./pages/interview/InterviewPrep";
-
-//import Notifications from "./pages/notifications/Notifications";
-
-//import Profile from "./pages/profile/Profile";
-//import Settings from "./pages/settings/Settings";
 
 function App() {
   return (
-    <BrowserRouter>
 
-      <Routes>
+    <Routes>
 
-        {/* Authentication */}
+      {/* Authentication */}
+      <Route path="/" element={<Login />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      {/* Dashboard */}
+      <Route
+        path="/dashboard"
+        element={<Dashboard />}
+      />
 
-        {/* Dashboard */}
+      {/* Resume */}
+      <Route
+        path="/profile-resume"
+        element={<ProfileResume />}
+      />
 
-        <Route
-          path="/dashboard"
-          element={<Dashboard />}
-        />
+      <Route
+        path="/resume-analysis"
+        element={<ResumeAnalysis />}
+      />
 
-        {/* Resume */}
+      <Route
+        path="/resume-optimizer"
+        element={<ResumeOptimizer />}
+      />
 
-        <Route
-          path="/profile-resume"
-          element={<ProfileResume />}
-        />
+      {/* Jobs */}
+      <Route
+        path="/opportunities"
+        element={<JobOpportunities />}
+      />
 
-        <Route
-          path="/resume-analysis"
-          element={<ResumeAnalysis />}
-        />
+      {/* Applications */}
+      <Route
+        path="/applications"
+        element={<MyApplications />}
+      />
 
-        <Route
-          path="/ats-analysis"
-          element={<ATSAnalysis />}
-        />
+      <Route
+        path="/job-match"
+        element={<JobMatch />}
+      />
 
-        <Route
-          path="/resume-optimizer"
-          element={<ResumeOptimizer />}
-        />
+      {/* Interview */}
+      <Route
+        path="/interview-prep"
+        element={<InterviewPrep />}
+      />
 
-        <Route
-          path="/resume-chat"
-          element={<ResumeChat />}
-        />
+    </Routes>
 
-        <Route
-          path="/cover-letter"
-          element={<CoverLetter />}
-        />
-
-        {/* Jobs */}
-
-        <Route
-          path="/opportunities"
-          element={<JobOpportunities />}
-        />
-
-        <Route
-          path="/company-hub"
-          element={<CompanyHub />}
-        />
-
-        {/* Applications */}
-
-        <Route
-          path="/applications"
-          element={<MyApplications />}
-        />
-
-        {/* Interview */}
-
-        <Route
-          path="/interview-prep"
-          element={<InterviewPrep />}
-        />
-
-        {/* Notifications */}
-
-        <Route
-          path="/notifications"
-          element={<Notifications />}
-        />
-
-        {/* User */}
-
-        <Route
-          path="/profile"
-          element={<Profile />}
-        />
-
-        <Route
-          path="/settings"
-          element={<Settings />}
-        />
-
-      </Routes>
-
-    </BrowserRouter>
   );
 }
 

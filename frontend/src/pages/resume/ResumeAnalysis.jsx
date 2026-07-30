@@ -20,9 +20,10 @@ export default function ResumeAnalysis() {
 
             const data = await getLatestAnalysis();
 
-console.log(data);
+            console.log(data);
 
-setAnalysis(data.analysis);
+            setAnalysis(data);
+            console.log("Resume Score:", data.resume_score);
 
         } catch (err) {
 
@@ -99,8 +100,8 @@ setAnalysis(data.analysis);
                     <ul className="space-y-2">
 
                         {analysis.technical_skills?.map((skill) => (
-  <li key={skill}>✅ {skill}</li>
-))}
+                            <li key={skill}>✅ {skill}</li>
+                        ))}
 
                     </ul>
 

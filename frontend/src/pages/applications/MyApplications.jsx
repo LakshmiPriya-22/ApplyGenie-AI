@@ -82,14 +82,14 @@ export default function MyApplications() {
                                 Status :
                                 <span
                                     className={`ml-2 font-semibold ${application.status === "Applied"
-                                        ? "text-green-400"
-                                        : application.status === "Rejected"
-                                            ? "text-red-400"
-                                            : application.status === "Interview"
-                                                ? "text-yellow-400"
-                                                : application.status === "Offer"
-                                                    ? "text-cyan-400"
-                                                    : "text-white"
+                                            ? "text-green-400"
+                                            : application.status === "Rejected"
+                                                ? "text-red-400"
+                                                : application.status === "Interview"
+                                                    ? "text-yellow-400"
+                                                    : application.status === "Offer"
+                                                        ? "text-cyan-400"
+                                                        : "text-white"
                                         }`}
                                 >
                                     {application.status}

@@ -5,9 +5,8 @@ import { getMyResume } from "../../api/resume";
 import { getJobs } from "../../api/jobs";
 import {
   generateInterview,
-  submitInterviewAnswers,
+  submitInterview,
 } from "../../api/interview";
-
 export default function InterviewPrep() {
   const [resume, setResume] = useState(null);
   const [jobs, setJobs] = useState([]);
@@ -59,12 +58,12 @@ export default function InterviewPrep() {
     try {
       setGenerating(true);
 
-      const data = await generateInterview(
-        resume.id,
-        Number(selectedJob),
-        interviewType,
-        difficulty
-      );
+      const data = await generateInterview({
+        resume_id: resume.id,
+        job_id: Number(selectedJob),
+        interview_type: interviewType,
+        difficulty: difficulty,
+      });
 
       setInterview(data);
       setAnswers({});
@@ -98,13 +97,16 @@ export default function InterviewPrep() {
     try {
       setSubmitting(true);
 
-      const result =
-        await submitInterviewAnswers(
-          interview.id,
-          formattedAnswers
-        );
+      const result = await submitInterview(
+        interview.id,
+        formattedAnswers
+      );
 
-      setInterview(result);
+      console.log(result);
+
+      setInterview({
+        ...result
+      });
 
       alert("Interview evaluated successfully.");
     } catch (err) {
