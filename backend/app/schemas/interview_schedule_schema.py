@@ -4,47 +4,39 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 
-# --------------------------------------
-# Generate Interview Request
-# --------------------------------------
-class InterviewGenerateRequest(BaseModel):
-    resume_id: int
-    job_id: int
-    job_match_id: int
+# ---------------------------------------
+# Create Schedule
+# ---------------------------------------
+
+class InterviewScheduleCreate(BaseModel):
+    interview_id: int
+    scheduled_at: datetime
 
 
-# --------------------------------------
-# Individual Question
-# --------------------------------------
-class InterviewQuestion(BaseModel):
-    question: str
-    difficulty: str
+# ---------------------------------------
+# Update Schedule
+# ---------------------------------------
+
+class InterviewScheduleUpdate(BaseModel):
+    scheduled_at: datetime
 
 
-# --------------------------------------
-# Interview Response
-# --------------------------------------
-class InterviewResponse(BaseModel):
+# ---------------------------------------
+# Schedule Response
+# ---------------------------------------
+
+class InterviewScheduleResponse(BaseModel):
+
     id: int
 
     user_id: int
-    resume_id: int
-    job_id: int
-    job_match_id: int
+    interview_id: int
 
-    interview_type: str
-    difficulty: str
+    scheduled_at: datetime
 
-    questions: list
-    answers: Optional[list] = None
-    feedback: Optional[list] = None
+    status: str
 
-    tips: Optional[list] = None
-    roadmap: Optional[list] = None
-
-    summary: Optional[str] = None
-
-    score: Optional[float] = None
+    reminder_sent: bool
 
     created_at: datetime
     updated_at: datetime
@@ -52,15 +44,28 @@ class InterviewResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-# --------------------------------------
-# Interview List
-# --------------------------------------
-class InterviewListResponse(BaseModel):
-    interviews: list[InterviewResponse]
+# ---------------------------------------
+# Statistics
+# ---------------------------------------
+
+class InterviewStatistics(BaseModel):
+
+    total: int
+
+    upcoming: int
+
+    completed: int
+
+    cancelled: int
+
+    today: int
+
+    this_week: int
 
 
-# --------------------------------------
+# ---------------------------------------
 # Delete Response
-# --------------------------------------
-class DeleteInterviewResponse(BaseModel):
+# ---------------------------------------
+
+class DeleteInterviewScheduleResponse(BaseModel):
     message: str

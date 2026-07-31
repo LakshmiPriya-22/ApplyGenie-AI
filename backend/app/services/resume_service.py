@@ -16,6 +16,7 @@ from app.repositories.resume_analysis_repository import ResumeAnalysisRepository
 from app.services.resume_analysis_service import ResumeAnalysisService
 from app.rag.indexer import ResumeIndexer
 from app.utils.pdf_parser import extract_text_from_pdf
+from app.services.notification_service import NotificationService
 
 UPLOAD_FOLDER = settings.UPLOAD_FOLDER
 
@@ -99,6 +100,14 @@ class ResumeService:
             db=db,
             resume=resume
         )
+
+        NotificationService.create_notification(
+    db=db,
+    user_id=current_user.id,
+    title="Resume Uploaded",
+    message="Your resume has been uploaded successfully.",
+    type="SUCCESS"
+)
 
         logger.info(
             f"Resume uploaded successfully : {resume.id}"

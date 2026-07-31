@@ -4,6 +4,7 @@ from app.repositories.resume_analysis_repository import (
     ResumeAnalysisRepository
 )
 from app.rag.rag_service import RAGService
+from app.services.notification_service import NotificationService
 
 
 class ResumeAnalysisService:
@@ -17,7 +18,6 @@ class ResumeAnalysisService:
         Generate AI-powered resume analysis using RAG.
         """
 
-        # Check if analysis already exists
         existing = ResumeAnalysisRepository.get_by_resume_id(
             db=db,
             resume_id=resume.id
@@ -26,18 +26,27 @@ class ResumeAnalysisService:
         if existing:
             return existing
 
-        # Generate analysis using RAG
         analysis = RAGService.resume_analysis(
             user_id=resume.user_id,
             resume_id=resume.id
         )
 
-        # Save analysis
-        return ResumeAnalysisRepository.create(
+        result = ResumeAnalysisRepository.create(
             db=db,
             resume_id=resume.id,
             analysis=analysis
         )
+
+        # Create notification
+        NotificationService.create_notification(
+            db=db,
+            user_id=resume.user_id,
+            title="Resume Analysis Completed",
+            message="Your AI resume analysis is ready.",
+            type="INFO"
+        )
+
+        return result
 
     @staticmethod
     def regenerate_analysis(
@@ -62,13 +71,32 @@ class ResumeAnalysisService:
             existing.analysis = analysis
             db.commit()
             db.refresh(existing)
+
+            NotificationService.create_notification(
+                db=db,
+                user_id=resume.user_id,
+                title="Resume Analysis Updated",
+                message="Your resume analysis has been regenerated.",
+                type="INFO"
+            )
+
             return existing
 
-        return ResumeAnalysisRepository.create(
+        result = ResumeAnalysisRepository.create(
             db=db,
             resume_id=resume.id,
             analysis=analysis
         )
+
+        NotificationService.create_notification(
+            db=db,
+            user_id=resume.user_id,
+            title="Resume Analysis Completed",
+            message="Your AI resume analysis is ready.",
+            type="INFO"
+        )
+
+        return result
 
     @staticmethod
     def get_analysis(

@@ -51,9 +51,36 @@ Skills:
         )
 
         try:
-            return json.loads(response)
 
-        except Exception:
+            print("\n========== RAW RESPONSE ==========")
+            print(response)
+
+            cleaned = response
+
+            if "Sources:" in cleaned:
+                cleaned = cleaned.split("Sources:")[0].strip()
+
+            print("\n========== CLEANED RESPONSE ==========")
+            print(cleaned)
+
+            data = json.loads(cleaned)
+
+            return {
+                "match_score": data.get("ats_score", 0),
+                "strengths": data.get("matching_skills", []),
+                "missing_skills": data.get("missing_skills", []),
+                "recommendations": (
+                    data.get("keyword_suggestions", [])
+                    + data.get("resume_improvements", [])
+                ),
+                "summary": data.get("final_verdict", "")
+            }
+
+        except Exception as e:
+
+            print("\n========== PARSE ERROR ==========")
+            print(e)
+            print(response)
 
             return {
                 "match_score": 0,

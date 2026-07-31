@@ -3,6 +3,15 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
+class JobInfo(BaseModel):
+    id: int
+    title: str
+    company: str
+    location: Optional[str] = None
+    employment_type: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 class ApplicationCreate(BaseModel):
     resume_id: int
@@ -25,6 +34,8 @@ class ApplicationResponse(BaseModel):
 
     applied_at: datetime
     updated_at: datetime
+
+    job: JobInfo
 
     model_config = ConfigDict(from_attributes=True)
 

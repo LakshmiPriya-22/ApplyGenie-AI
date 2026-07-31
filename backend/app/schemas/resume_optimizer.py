@@ -1,3 +1,4 @@
+from typing import Any
 from pydantic import BaseModel
 
 
@@ -7,4 +8,5 @@ class ResumeOptimizerRequest(BaseModel):
 
 
 class ResumeOptimizerResponse(BaseModel):
-    optimized_resume: str
+    optimized_resume: Any
+

@@ -15,12 +15,18 @@ from app.database.base import Base
 class Job(Base):
     __tablename__ = "jobs"
 
+    # ---------------------------------------
+    # Primary Key
+    # ---------------------------------------
     id = Column(
         Integer,
         primary_key=True,
         index=True
     )
 
+    # ---------------------------------------
+    # Job Details
+    # ---------------------------------------
     title = Column(
         String,
         nullable=False
@@ -66,49 +72,65 @@ class Job(Base):
         nullable=True
     )
 
-    created_at = Column(
-        DateTime(timezone=True),
-        server_default=func.now()
-    )
-
-    updated_at = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        onupdate=func.now()
-    )
-
-    # Nullable because jobs may come from external providers
+    # ---------------------------------------
+    # Ownership
+    # External jobs can have no owner
+    # ---------------------------------------
     posted_by = Column(
         Integer,
         ForeignKey("users.id"),
         nullable=True
     )
 
+    # ---------------------------------------
+    # Audit Fields
+    # ---------------------------------------
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False
+    )
+
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False
+    )
+
+    # ---------------------------------------
+    # Relationships
+    # ---------------------------------------
     user = relationship(
         "User",
-        back_populates="jobs"
+        back_populates="jobs",
+        lazy="selectin"
     )
 
     job_matches = relationship(
         "JobMatch",
         back_populates="job",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        lazy="selectin"
     )
 
     applications = relationship(
         "Application",
         back_populates="job",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        lazy="selectin"
     )
 
     cover_letters = relationship(
         "CoverLetter",
         back_populates="job",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        lazy="selectin"
     )
 
     interviews = relationship(
         "Interview",
         back_populates="job",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        lazy="selectin"
     )

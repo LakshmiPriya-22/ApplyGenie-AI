@@ -6,7 +6,7 @@ from sqlalchemy import (
     ForeignKey,
     JSON,
     String,
-    DateTime
+    DateTime,
 )
 from sqlalchemy.orm import relationship
 
@@ -19,38 +19,38 @@ class ResumeAnalysis(Base):
     id = Column(
         Integer,
         primary_key=True,
-        index=True
+        index=True,
     )
 
     resume_id = Column(
         Integer,
         ForeignKey("resumes.id"),
-        nullable=False
+        nullable=False,
     )
 
     analysis = Column(
         JSON,
-        nullable=False
+        nullable=False,
     )
 
     status = Column(
         String(30),
         default="COMPLETED",
-        nullable=False
+        nullable=False,
     )
 
     created_at = Column(
         DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
     )
 
     updated_at = Column(
         DateTime,
         default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        onupdate=datetime.utcnow,
     )
 
     resume = relationship(
         "Resume",
-        back_populates="analysis"
+        back_populates="analysis",
     )

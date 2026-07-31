@@ -11,7 +11,7 @@ from app.repositories.job_match_repository import JobMatchRepository
 
 from app.services.ai_matching_service import AIMatchingService
 from app.services.ai_interview_service import AIInterviewService
-
+from app.services.notification_service import NotificationService
 
 class InterviewService:
 
@@ -151,6 +151,15 @@ class InterviewService:
         roadmap=questions.get("roadmap"),
         summary=questions.get("summary")
     )
+        NotificationService.create_notification(
+    db=db,
+    user_id=current_user.id,
+    title="Interview Generated",
+    message=f"Your {interview_type} interview for '{job.title}' is ready.",
+    type="INTERVIEW"
+)
+
+
 
     @staticmethod
     def submit_answers(
@@ -194,6 +203,15 @@ class InterviewService:
     feedback=result["feedback"],
     score=result["score"]
 )
+
+        NotificationService.create_notification(
+    db=db,
+    user_id=current_user.id,
+    title="Interview Completed",
+    message=f"You scored {result['score']}% in your AI interview.",
+    type="SUCCESS"
+)
+
 
     @staticmethod
     def get_interview(

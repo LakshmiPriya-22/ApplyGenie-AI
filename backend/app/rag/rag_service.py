@@ -43,7 +43,11 @@ class RAGService:
     def resume_analysis(
         user_id: int,
         resume_id: int
-    ) -> str:
+    ) -> dict:
+        """
+        Generate structured AI resume analysis.
+        Returns JSON instead of markdown.
+        """
 
         context, documents = RAGService._get_context(
             user_id=user_id,
@@ -55,12 +59,35 @@ class RAGService:
             context=context
         )
 
-        answer = llm.generate(prompt)
+        response = llm.generate(prompt)
 
-        sources = CitationService.format_sources(documents)
+        if not response:
+            raise ValueError("LLM returned an empty response.")
 
-        return f"{answer}\n\nSources:\n{sources}"
+        response = response.strip()
 
+        response = re.sub(
+            r"^```(?:json)?",
+            "",
+            response,
+            flags=re.IGNORECASE
+        )
+
+        response = re.sub(
+            r"```$",
+            "",
+            response
+        ).strip()
+
+        try:
+            data = json.loads(response)
+
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Invalid JSON returned by LLM:\n\n{response}"
+            ) from e
+
+        return data
     @staticmethod
     def ats_analysis(
         user_id: int,
@@ -81,9 +108,8 @@ class RAGService:
 
         answer = llm.generate(prompt)
 
-        sources = CitationService.format_sources(documents)
-
-        return f"{answer}\n\nSources:\n{sources}"
+        
+        return answer
 
     @staticmethod
     def job_match(
@@ -128,6 +154,8 @@ class RAGService:
             response
         ).strip()
 
+        
+
         try:
             data = json.loads(response)
 
@@ -157,9 +185,8 @@ class RAGService:
 
         answer = llm.generate(prompt)
 
-        sources = CitationService.format_sources(documents)
-
-        return f"{answer}\n\nSources:\n{sources}"
+        
+        return answer
 
     @staticmethod
     def interview_questions(
@@ -179,9 +206,9 @@ class RAGService:
 
         answer = llm.generate(prompt)
 
-        sources = CitationService.format_sources(documents)
+        
 
-        return f"{answer}\n\nSources:\n{sources}"
+        return answer
 
     @staticmethod
     def cover_letter(
@@ -205,9 +232,9 @@ class RAGService:
 
         answer = llm.generate(prompt)
 
-        sources = CitationService.format_sources(documents)
+        
 
-        return f"{answer}\n\nSources:\n{sources}"
+        return answer
 
     @staticmethod
     def resume_chat(
@@ -244,9 +271,9 @@ class RAGService:
             content=answer
         )
 
-        sources = CitationService.format_sources(documents)
+        
 
-        return f"{answer}\n\nSources:\n{sources}"
+        return answer
 
     @staticmethod
     def resume_optimizer(
@@ -307,3 +334,104 @@ class RAGService:
         Clear chat history for a user.
         """
         ConversationMemory.clear(user_id)
+        
+        
+    @staticmethod
+    def generate_interview(
+        user_id: int,
+        resume_id: int,
+        resume_analysis: dict,
+        job,
+        match,
+        interview_type: str,
+        difficulty: str
+    ) -> dict:
+        """
+        Generate interview questions using the LLM.
+        """
+
+        prompt = PromptTemplates.generate_interview(
+            resume_analysis=resume_analysis,
+            job_title=job.title,
+            company=job.company,
+            job_description=job.description,
+            match_score=match.match_score,
+            interview_type=interview_type,
+            difficulty=difficulty
+        )
+
+        response = llm.generate(prompt)
+
+        if not response:
+            raise ValueError("LLM returned an empty response.")
+
+        response = response.strip()
+
+        response = re.sub(
+            r"^```(?:json)?",
+            "",
+            response,
+            flags=re.IGNORECASE
+        )
+
+        response = re.sub(
+            r"```$",
+            "",
+            response
+        ).strip()
+
+        try:
+            return json.loads(response)
+
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Invalid JSON returned by LLM:\n\n{response}"
+            ) from e
+
+
+    @staticmethod
+    def evaluate_interview_answers(
+        questions: list,
+        answers: list
+    ) -> dict:
+        """
+        Evaluate interview answers using AI.
+        """
+
+        prompt = PromptTemplates.evaluate_interview(
+            questions=questions,
+            answers=answers
+        )
+
+        response = llm.generate(prompt)
+
+        if not response:
+            raise ValueError("LLM returned an empty response.")
+
+        response = response.strip()
+
+        response = re.sub(
+            r"^```(?:json)?",
+            "",
+            response,
+            flags=re.IGNORECASE
+        )
+
+        response = re.sub(
+            r"```$",
+            "",
+            response
+        ).strip()
+
+        try:
+            return json.loads(response)
+
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Invalid JSON returned by LLM:\n\n{response}"
+            ) from e
+
+
+        
+            
+            

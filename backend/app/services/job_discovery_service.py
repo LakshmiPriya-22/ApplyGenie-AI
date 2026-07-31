@@ -8,17 +8,8 @@ class JobDiscoveryService:
     @staticmethod
     def process_jobs(
         db: Session,
-        jobs: list[dict]
+        jobs: list[dict],
     ) -> dict:
-        """
-        Process discovered jobs.
-
-        Responsibilities:
-        - Validate job data
-        - Remove duplicates
-        - Save new jobs
-        - Return statistics
-        """
 
         total_found = len(jobs)
         new_jobs = 0
@@ -35,7 +26,7 @@ class JobDiscoveryService:
             existing = JobRepository.get_by_title_company(
                 db=db,
                 title=title,
-                company=company
+                company=company,
             )
 
             if existing:
@@ -44,7 +35,24 @@ class JobDiscoveryService:
 
             JobRepository.create(
                 db=db,
-                job_data=job
+                job_data={
+                    "title": job.get("title"),
+                    "company": job.get("company"),
+                    "location": job.get("location", ""),
+                    "employment_type": job.get(
+                        "employment_type",
+                        "Full-time",
+                    ),
+                    "experience_level": job.get(
+                        "experience_level",
+                        "Not Specified",
+                    ),
+                    "salary": job.get("salary"),
+                    "description": job.get("description", ""),
+                    "requirements": job.get("requirements", ""),
+                    "skills": job.get("skills", ""),
+                    "posted_by": None,
+                },
             )
 
             new_jobs += 1
@@ -52,5 +60,5 @@ class JobDiscoveryService:
         return {
             "total_found": total_found,
             "new_jobs": new_jobs,
-            "duplicates": duplicates
+            "duplicates": duplicates,
         }
