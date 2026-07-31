@@ -22,6 +22,10 @@ import JobMatch from "./pages/jobs/JobMatch";
 // Interview
 import InterviewPrep from "./pages/interview/InterviewPrep";
 
+import ResumeChat from "./pages/resume/ResumeChat";
+
+import Notifications from "./pages/notifications/Notifications";
+
 function App() {
   return (
 
@@ -71,10 +75,22 @@ function App() {
         element={<JobMatch />}
       />
 
+      <Route
+        path="/resume-chat"
+        element={<ResumeChat />}
+      />
+
+
+
       {/* Interview */}
       <Route
         path="/interview-prep"
         element={<InterviewPrep />}
+      />
+
+      <Route
+        path="/notifications"
+        element={<Notifications />}
       />
 
     </Routes>
