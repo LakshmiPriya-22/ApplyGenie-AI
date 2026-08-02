@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import DashboardLayout from "../components/layout/DashboardLayout";
 
@@ -12,14 +13,13 @@ import { getProfile } from "../api/dashboard";
 
 function Dashboard() {
 
-  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     loadProfile();
-
   }, []);
 
   const loadProfile = async () => {
@@ -30,15 +30,11 @@ function Dashboard() {
 
       setUser(data);
 
-    }
-
-    catch (err) {
+    } catch (err) {
 
       console.error(err);
 
-    }
-
-    finally {
+    } finally {
 
       setLoading(false);
 
@@ -75,25 +71,32 @@ function Dashboard() {
 
       <div className="grid lg:grid-cols-2 gap-6">
 
-        <ATSCard />
+        <ATSCard
+          onImproveResume={() => navigate("/resume-optimizer")}
+          onViewAnalysis={() => navigate("/resume-analysis")}
+        />
 
-        <GoalCard />
+        <GoalCard
+          onViewGoals={() => navigate("/applications")}
+        />
 
       </div>
 
-      {/* INTERVIEW */}
+      {/* Interview */}
 
       <div className="mt-6">
 
-        <InterviewCard />
+        <InterviewCard
+          onViewSchedule={() => navigate("/interview-prep")}
+        />
 
       </div>
 
-      {/* BOTTOM SECTION */}
+      {/* Bottom Section */}
 
       <div className="grid lg:grid-cols-2 gap-6 mt-6">
 
-        {/* LEFT */}
+        {/* Jobs */}
 
         <div>
 
@@ -110,6 +113,7 @@ function Dashboard() {
               role="Software Engineer"
               location="Hyderabad"
               match="94% Match"
+              onClick={() => navigate("/jobs")}
             />
 
             <JobCard
@@ -117,6 +121,7 @@ function Dashboard() {
               role="Backend Engineer"
               location="Bengaluru"
               match="91% Match"
+              onClick={() => navigate("/jobs")}
             />
 
             <JobCard
@@ -124,19 +129,23 @@ function Dashboard() {
               role="SDE Intern"
               location="Chennai"
               match="89% Match"
+              onClick={() => navigate("/jobs")}
             />
 
           </div>
 
         </div>
 
-        {/* RIGHT */}
+        {/* Activity */}
 
-        <ActivityCard />
+        <ActivityCard
+          onViewNotifications={() => navigate("/notifications")}
+        />
 
       </div>
 
     </DashboardLayout>
+
   );
 
 }

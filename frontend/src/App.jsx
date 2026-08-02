@@ -26,6 +26,10 @@ import ResumeChat from "./pages/resume/ResumeChat";
 
 import Notifications from "./pages/notifications/Notifications";
 
+import Profile from "./pages/profile/Profile";
+
+import Settings from "./pages/settings/Settings";
+
 function App() {
   return (
 
@@ -93,7 +97,18 @@ function App() {
         element={<Notifications />}
       />
 
+      <Route
+        path="/settings"
+        element={<Settings />}
+      />
+
+      <Route
+        path="/profile"
+        element={<Profile />}
+      />
     </Routes>
+
+
 
   );
 }

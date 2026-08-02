@@ -13,6 +13,7 @@ from app.services.ai_matching_service import AIMatchingService
 from app.services.ai_interview_service import AIInterviewService
 from app.services.notification_service import NotificationService
 
+
 class InterviewService:
 
     @staticmethod
@@ -29,9 +30,6 @@ class InterviewService:
             f"Generating interview for Resume {resume_id} and Job {job_id}"
         )
 
-        # -----------------------------
-        # Verify Resume
-        # -----------------------------
         resume = ResumeRepository.get_by_id(
             db=db,
             resume_id=resume_id
@@ -49,12 +47,9 @@ class InterviewService:
                 detail="Access denied."
             )
 
-        # -----------------------------
-        # Verify Job
-        # -----------------------------
         job = JobRepository.get_by_id(
-        db=db,
-        job_id=job_id
+            db=db,
+            job_id=job_id
         )
 
         if not job:
@@ -63,9 +58,6 @@ class InterviewService:
                 detail="Job not found."
             )
 
-        # -----------------------------
-        # Resume Analysis
-        # -----------------------------
         analysis = ResumeAnalysisRepository.get_by_resume_id(
             db=db,
             resume_id=resume_id
@@ -77,24 +69,18 @@ class InterviewService:
                 detail="Resume analysis not found."
             )
 
-        # -----------------------------
-        # Get Existing Job Match
-        # -----------------------------
         match = JobMatchRepository.get_match(
             db=db,
             resume_id=resume_id,
             job_id=job_id
         )
 
-        # -----------------------------
-        # Generate Match if Missing
-        # -----------------------------
         if not match:
 
             logger.info("Generating new job match...")
 
             ai_result = AIMatchingService.match_resume_with_job(
-                resume_analysis=analysis.analysis,
+                resume=resume,
                 job=job
             )
 
@@ -110,9 +96,6 @@ class InterviewService:
                 ai_response=ai_result
             )
 
-        # -----------------------------
-        # Check Existing Interview
-        # -----------------------------
         interview = InterviewRepository.interview_exists(
             db=db,
             resume_id=resume_id,
@@ -124,42 +107,37 @@ class InterviewService:
         if interview:
             return interview
 
-        # -----------------------------
-        # Generate Questions
-        # -----------------------------
         questions = AIInterviewService.generate_interview(
-            resume_analysis=analysis.analysis,
+            resume=resume,
             job=job,
             match=match,
             interview_type=interview_type,
             difficulty=difficulty
         )
 
-        # -----------------------------
-        # Save Interview
-        # -----------------------------
         interview = InterviewRepository.create_interview(
-        db=db,
-        user_id=current_user.id,
-        resume_id=resume_id,
-        job_id=job_id,
-        job_match_id=match.id,
-        interview_type=interview_type,
-        difficulty=difficulty,
-        questions=questions["questions"],
-        tips=questions.get("tips"),
-        roadmap=questions.get("roadmap"),
-        summary=questions.get("summary")
-    )
+            db=db,
+            user_id=current_user.id,
+            resume_id=resume_id,
+            job_id=job_id,
+            job_match_id=match.id,
+            interview_type=interview_type,
+            difficulty=difficulty,
+            questions=questions,
+            tips=[],
+            roadmap=[],
+            summary=f"{interview_type} interview generated successfully."
+        )
+
         NotificationService.create_notification(
-    db=db,
-    user_id=current_user.id,
-    title="Interview Generated",
-    message=f"Your {interview_type} interview for '{job.title}' is ready.",
-    type="INTERVIEW"
-)
+            db=db,
+            user_id=current_user.id,
+            title="Interview Generated",
+            message=f"Your {interview_type} interview for '{job.title}' is ready.",
+            type="INTERVIEW"
+        )
 
-
+        return interview
 
     @staticmethod
     def submit_answers(
@@ -198,20 +176,29 @@ class InterviewService:
         )
 
         InterviewRepository.update_feedback(
-    db=db,
-    interview=interview,
-    feedback=result["feedback"],
-    score=result["score"]
-)
+            db=db,
+            interview=interview,
+            feedback={
+                "strengths": result.get("strengths", []),
+                "weaknesses": result.get("weaknesses", []),
+                "suggestions": result.get("suggestions", []),
+                "overall_feedback": result.get("overall_feedback", "")
+            },
+            score=result.get("score", 0)
+        )
 
         NotificationService.create_notification(
-    db=db,
-    user_id=current_user.id,
-    title="Interview Completed",
-    message=f"You scored {result['score']}% in your AI interview.",
-    type="SUCCESS"
-)
+            db=db,
+            user_id=current_user.id,
+            title="Interview Completed",
+            message=f"You scored {result.get('score', 0)}% in your AI interview.",
+            type="SUCCESS"
+        )
 
+        return InterviewRepository.get_interview_by_id(
+            db=db,
+            interview_id=interview_id
+        )
 
     @staticmethod
     def get_interview(

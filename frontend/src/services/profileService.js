@@ -1,28 +1,25 @@
 import api from "./api";
 
 const profileService = {
-  // Get student profile
+
   getProfile: async () => {
-    const response = await api.get("/profile");
+    const response = await api.get("/profile/");
     return response.data;
   },
 
-  // Create profile
-  createProfile: async (profileData) => {
-    const response = await api.post("/profile", profileData);
+  createProfile: async (data) => {
+    const response = await api.post("/profile/", data);
     return response.data;
   },
 
-  // Update profile
-  updateProfile: async (profileData) => {
-    const response = await api.put("/profile", profileData);
+  updateProfile: async (data) => {
+    const response = await api.put("/profile/", data);
     return response.data;
   },
 
-  // Upload resume
-  uploadResume: async (formData) => {
+  uploadPhoto: async (formData) => {
     const response = await api.post(
-      "/resume/upload",
+      "/profile/photo",
       formData,
       {
         headers: {
@@ -33,6 +30,12 @@ const profileService = {
 
     return response.data;
   },
+
+  deletePhoto: async () => {
+    const response = await api.delete("/profile/photo");
+    return response.data;
+  },
+
 };
 
 export default profileService;

@@ -1,6 +1,9 @@
 import { FileCheck } from "lucide-react";
 
-export default function ATSCard() {
+export default function ATSCard({
+  onImproveResume,
+  onViewAnalysis,
+}) {
   return (
     <div
       className="
@@ -29,11 +32,25 @@ export default function ATSCard() {
 
         </div>
 
-        <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center">
-
+        {/* Resume Analysis Button */}
+        <button
+          onClick={onViewAnalysis}
+          className="
+          w-16
+          h-16
+          rounded-2xl
+          bg-blue-600
+          flex
+          items-center
+          justify-center
+          hover:bg-blue-700
+          transition
+          cursor-pointer
+          "
+          title="View Resume Analysis"
+        >
           <FileCheck size={28} />
-
-        </div>
+        </button>
 
       </div>
 
@@ -68,6 +85,7 @@ export default function ATSCard() {
       </p>
 
       <button
+        onClick={onImproveResume}
         className="
         mt-8
         bg-blue-600
@@ -77,6 +95,7 @@ export default function ATSCard() {
         rounded-xl
         font-medium
         transition
+        cursor-pointer
         "
       >
         Improve Resume

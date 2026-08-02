@@ -33,7 +33,9 @@ const activities = [
   },
 ];
 
-export default function ActivityCard() {
+export default function ActivityCard({
+  onViewNotifications,
+}) {
   return (
     <div
       className="
@@ -52,15 +54,11 @@ export default function ActivityCard() {
         <div>
 
           <h2 className="text-2xl font-semibold">
-
             Recent Activity
-
           </h2>
 
           <p className="text-slate-400 mt-1">
-
             Latest actions in your account
-
           </p>
 
         </div>
@@ -92,15 +90,11 @@ export default function ActivityCard() {
               <div className="flex-1">
 
                 <h3 className="font-medium">
-
                   {item.title}
-
                 </h3>
 
                 <p className="text-slate-400 text-sm mt-1">
-
                   {item.desc}
-
                 </p>
 
                 <div className="flex items-center gap-2 mt-2 text-xs text-slate-500">
@@ -122,6 +116,7 @@ export default function ActivityCard() {
       </div>
 
       <button
+        onClick={onViewNotifications}
         className="
         mt-8
         w-full
@@ -131,6 +126,7 @@ export default function ActivityCard() {
         py-3
         hover:bg-slate-800
         transition
+        cursor-pointer
         "
       >
         View All Activity

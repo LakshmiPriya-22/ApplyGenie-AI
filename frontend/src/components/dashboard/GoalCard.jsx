@@ -1,6 +1,8 @@
 import { Target } from "lucide-react";
 
-export default function GoalCard() {
+export default function GoalCard({
+  onViewGoals,
+}) {
   return (
     <div
       className="
@@ -18,15 +20,19 @@ export default function GoalCard() {
       <div className="flex justify-between items-center">
 
         <h2 className="text-2xl font-semibold">
-
           Weekly Goals
-
         </h2>
 
-        <Target
-          size={28}
-          className="text-blue-500"
-        />
+        <button
+          onClick={onViewGoals}
+          className="cursor-pointer"
+          title="View Applications"
+        >
+          <Target
+            size={28}
+            className="text-blue-500 hover:scale-110 transition"
+          />
+        </button>
 
       </div>
 
@@ -37,15 +43,11 @@ export default function GoalCard() {
         <div className="flex justify-between text-sm">
 
           <span className="text-slate-400">
-
             Applications
-
           </span>
 
           <span>
-
             12 / 20
-
           </span>
 
         </div>
@@ -65,15 +67,11 @@ export default function GoalCard() {
         <div className="flex justify-between text-sm">
 
           <span className="text-slate-400">
-
             Interviews
-
           </span>
 
           <span>
-
             3 / 5
-
           </span>
 
         </div>
@@ -93,15 +91,11 @@ export default function GoalCard() {
         <div className="flex justify-between text-sm">
 
           <span className="text-slate-400">
-
             Resume Updates
-
           </span>
 
           <span>
-
             1 / 2
-
           </span>
 
         </div>
@@ -115,6 +109,7 @@ export default function GoalCard() {
       </div>
 
       <button
+        onClick={onViewGoals}
         className="
         mt-10
         bg-blue-600
@@ -124,6 +119,7 @@ export default function GoalCard() {
         rounded-xl
         transition
         font-medium
+        cursor-pointer
         "
       >
         View Goals

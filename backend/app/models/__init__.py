@@ -9,3 +9,5 @@ from .cover_letter import CoverLetter
 from .email_log import EmailLog
 from .interview_schedule import InterviewSchedule
 from .notification import Notification
+from app.models.profile import Profile
+from app.models.settings import Settings

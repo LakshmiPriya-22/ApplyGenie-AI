@@ -50,4 +50,18 @@ class User(Base):
     back_populates="user",
     cascade="all, delete-orphan"
 )
+
+    profile = relationship(
+    "Profile",
+    back_populates="user",
+    uselist=False,
+    cascade="all, delete-orphan"
+)
+
+    settings = relationship(
+    "Settings",
+    back_populates="user",
+    uselist=False,
+    cascade="all, delete-orphan"
+)
    

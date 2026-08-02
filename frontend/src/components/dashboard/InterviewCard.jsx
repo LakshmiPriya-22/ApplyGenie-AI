@@ -25,7 +25,9 @@ const interviews = [
   },
 ];
 
-export default function InterviewCard() {
+export default function InterviewCard({
+  onViewSchedule,
+}) {
   return (
     <div
       className="
@@ -46,24 +48,33 @@ export default function InterviewCard() {
         <div>
 
           <h2 className="text-2xl font-semibold">
-
             Upcoming Interviews
-
           </h2>
 
           <p className="text-slate-400 mt-1">
-
             Your scheduled interview sessions
-
           </p>
 
         </div>
 
-        <div className="w-14 h-14 rounded-xl bg-blue-600 flex items-center justify-center">
-
+        <button
+          onClick={onViewSchedule}
+          className="
+          w-14
+          h-14
+          rounded-xl
+          bg-blue-600
+          flex
+          items-center
+          justify-center
+          hover:bg-blue-700
+          transition
+          cursor-pointer
+          "
+          title="View Interview Schedule"
+        >
           <CalendarDays size={26} />
-
-        </div>
+        </button>
 
       </div>
 
@@ -89,8 +100,6 @@ export default function InterviewCard() {
             "
           >
 
-            {/* Left */}
-
             <div className="flex gap-4 items-center">
 
               <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center">
@@ -105,29 +114,21 @@ export default function InterviewCard() {
               <div>
 
                 <h3 className="font-semibold">
-
                   {item.company}
-
                 </h3>
 
                 <p className="text-slate-400">
-
                   {item.role}
-
                 </p>
 
               </div>
 
             </div>
 
-            {/* Right */}
-
             <div className="text-right">
 
               <div className="text-blue-400 font-medium">
-
                 {item.date}
-
               </div>
 
               <div className="flex items-center justify-end gap-2 mt-2 text-slate-400 text-sm">
@@ -146,9 +147,8 @@ export default function InterviewCard() {
 
       </div>
 
-      {/* Button */}
-
       <button
+        onClick={onViewSchedule}
         className="
         mt-8
         w-full
@@ -158,6 +158,7 @@ export default function InterviewCard() {
         rounded-xl
         font-medium
         transition
+        cursor-pointer
         "
       >
         View Interview Schedule

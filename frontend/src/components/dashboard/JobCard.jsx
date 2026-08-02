@@ -9,6 +9,7 @@ export default function JobCard({
   role,
   location,
   match,
+  onClick,
 }) {
   return (
     <div
@@ -22,11 +23,11 @@ export default function JobCard({
       hover:-translate-y-1
       transition-all
       duration-300
+      cursor-pointer
       "
+      onClick={onClick}
     >
       <div className="flex justify-between items-start">
-
-        {/* Left */}
 
         <div className="flex gap-4">
 
@@ -42,15 +43,11 @@ export default function JobCard({
           <div>
 
             <h2 className="font-semibold text-lg">
-
               {company}
-
             </h2>
 
             <p className="text-slate-400">
-
               {role}
-
             </p>
 
             <div className="flex items-center gap-2 mt-3 text-slate-500 text-sm">
@@ -65,8 +62,6 @@ export default function JobCard({
 
         </div>
 
-        {/* Match */}
-
         <div className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-semibold">
 
           {match}
@@ -78,6 +73,10 @@ export default function JobCard({
       <div className="flex justify-between items-center mt-8">
 
         <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick();
+          }}
           className="
           bg-blue-600
           hover:bg-blue-700
@@ -91,8 +90,13 @@ export default function JobCard({
           Apply Now
         </button>
 
-        <button className="flex items-center gap-2 text-blue-400 hover:text-blue-300">
-
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick();
+          }}
+          className="flex items-center gap-2 text-blue-400 hover:text-blue-300"
+        >
           View
 
           <ArrowRight size={16} />
